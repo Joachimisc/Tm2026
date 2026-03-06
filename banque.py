@@ -14,7 +14,7 @@ class CompteBancaire :
     def transactions(self, montant_echange, compte_recevant) :
        if montant_echange > self.solde :
            print("Transaction impossible car le solde est insuffisant")
-       else : 
+       else :
            self.retirer(montant_echange)
            compte_recevant.deposer(montant_echange)
            print("Transaction réussie")

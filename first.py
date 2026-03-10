@@ -36,6 +36,10 @@ class Plateau :
             self.tuiles[(x,y)] = tuile
             return True
         return False 
+class Joueur :
+    def __init__ (self,nom) :
+        self.nom = nom
+        self.score = 0
 #V pour ville, P pour prairie, R pour route
 tuile1 = Tuile("V","V","P","P")
 tuile2 = Tuile("V","R","P","R")
@@ -48,9 +52,11 @@ tuile8 = Tuile("P","R","R","P")
 tuile9 = Tuile("V","R","V","P")
 tuile10 = Tuile("P","P","R","P")
 pioche = [tuile1,tuile2,tuile3,tuile4,tuile5,tuile6,tuile7,tuile8,tuile9,tuile10]
+plateau = Plateau()
+joueur1 = Joueur("Joachim")
+joueur2 = Joueur("Livio")
 
 random.shuffle(pioche)
-plateau = Plateau()
 plateau.placement(pioche.pop(),0,0)
 while pioche :
     print(plateau.tuiles)

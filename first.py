@@ -1,9 +1,12 @@
+import random
 class Tuile :
     def __init__(self,nord,est,sud,ouest):
         self.nord = nord
         self.est = est
         self.sud = sud
         self.ouest = ouest
+    def __repr__(self):
+        return f"Tuile({self.nord},{self.est},{self.sud},{self.ouest})"
     def tourner(self):
         self.nord, self.est, self.sud, self.ouest = \
         self.ouest, self.nord, self.est, self.sud
@@ -46,5 +49,19 @@ tuile9 = Tuile("V","R","V","P")
 tuile10 = Tuile("P","P","R","P")
 pioche = [tuile1,tuile2,tuile3,tuile4,tuile5,tuile6,tuile7,tuile8,tuile9,tuile10]
 
+random.shuffle(pioche)
 plateau = Plateau()
-plateau.placement(tuile1,0,0)
+plateau.placement(pioche.pop(),0,0)
+while pioche :
+    print(plateau.tuiles)
+    tuile_joueur=pioche.pop()
+    print("Voici votre tuile :",tuile_joueur.nord,tuile_joueur.est,tuile_joueur.sud,tuile_joueur.ouest)
+    rotation = int(input("Tournez la tuile de 90°(1,2,3 fois) :"))
+    for i in range(rotation) :
+        tuile_joueur.tourner()
+    x = int(input("Entrez une coordonnée x :"))
+    y = int(input("Entrez une coordonnée y :"))
+    if plateau.placement(tuile_joueur,x,y) :
+        print("Tuile placée !")
+    else :
+        print("Placement non valide.")

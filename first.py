@@ -8,8 +8,7 @@ class Tuile :
     def __repr__(self):
         return f"Tuile({self.nord},{self.est},{self.sud},{self.ouest})"
     def tourner(self):
-        self.nord, self.est, self.sud, self.ouest = \
-        self.ouest, self.nord, self.est, self.sud
+        self.nord, self.est, self.sud, self.ouest = self.ouest, self.nord, self.est, self.sud
 class Plateau : 
     def __init__(self) :
         self.tuiles = {}
@@ -37,9 +36,14 @@ class Plateau :
             return True
         return False 
 class Joueur :
-    def __init__ (self,nom) :
+    def __init__(self,nom) :
         self.nom = nom
         self.score = 0
+class Jeu :
+    def __init__(self,joueurs,pioche) :
+        self.joueurs = joueurs
+        self.pioche = pioche
+
 #V pour ville, P pour prairie, R pour route
 tuile1 = Tuile("V","V","P","P")
 tuile2 = Tuile("V","R","P","R")

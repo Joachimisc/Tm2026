@@ -65,7 +65,7 @@ plateau.placement(pioche.pop(),0,0)
 while pioche :
     print(plateau.tuiles)
     tuile_joueur=pioche.pop()
-    print("Voici votre tuile :",tuile_joueur.nord,tuile_joueur.est,tuile_joueur.sud,tuile_joueur.ouest)
+    print("Voici votre tuile :",tuile_joueur)
     rotation = int(input("Tournez la tuile de 90°(1,2,3 fois) :"))
     for i in range(rotation) :
         tuile_joueur.tourner()

@@ -43,6 +43,40 @@ class Jeu :
     def __init__(self,joueurs,pioche) :
         self.joueurs = joueurs
         self.pioche = pioche
+        self.index_joueur = 0
+    def jouer_tour(self,plateau) :
+        joueur = self.joueurs[self.index_joueur]
+        print(f"Tour de {joueur.nom}")  
+        if not self.pioche :
+            return False
+        print(plateau.tuiles)
+        tuile_joueur = self.pioche.pop()
+        print("Voici votre tuile :",tuile_joueur)
+        rotation = int(input("Tournez la tuile de 90°(1,2,3 fois) :"))
+        for i in range(rotation) :
+            tuile_joueur.tourner()
+        while True :
+            x = int(input("Entrez une coordonnée x :"))
+            y = int(input("Entrez une coordonnée y :"))
+            if plateau.placement(tuile_joueur,x,y) :
+                print("Tuile placée !")
+                break
+            else :
+                print("Placement non valide, réessayez.")
+        self.changer_joueur()
+        return True
+    def changer_joueur(self) :
+        self.index_joueur = (self.index_joueur + 1)% len(self.joueurs)
+    def deroulement_partie(self,plateau) :
+        random.shuffle(self.pioche)
+        plateau.placement(self.pioche.pop(),0,0)
+        while self.pioche :
+            continuer = self.jouer_tour(plateau)
+            if not continuer :
+                break
+        print("Partie terminée !")
+
+
 
 #V pour ville, P pour prairie, R pour route
 tuile1 = Tuile("V","V","P","P")
@@ -60,18 +94,5 @@ plateau = Plateau()
 joueur1 = Joueur("Joachim")
 joueur2 = Joueur("Livio")
 
-random.shuffle(pioche)
-plateau.placement(pioche.pop(),0,0)
-while pioche :
-    print(plateau.tuiles)
-    tuile_joueur=pioche.pop()
-    print("Voici votre tuile :",tuile_joueur)
-    rotation = int(input("Tournez la tuile de 90°(1,2,3 fois) :"))
-    for i in range(rotation) :
-        tuile_joueur.tourner()
-    x = int(input("Entrez une coordonnée x :"))
-    y = int(input("Entrez une coordonnée y :"))
-    if plateau.placement(tuile_joueur,x,y) :
-        print("Tuile placée !")
-    else :
-        print("Placement non valide.")
+jeu = Jeu([joueur1,joueur2],pioche)
+jeu.deroulement_partie(plateau)

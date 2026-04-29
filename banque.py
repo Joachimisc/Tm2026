@@ -2,15 +2,19 @@ class CompteBancaire :
     def __init__ (self, titulaire, solde=1000) :
         self.titulaire = titulaire
         self.solde = solde
+
     def deposer(self, montant_plus) : 
         self.solde = self.solde + montant_plus
+
     def retirer(self, montant_moins) : 
         if montant_moins > self.solde :
             print("Vous n'avez pas assez d'argent")
         else :
             self.solde = self.solde - montant_moins
+
     def afficher_solde(self) :
         print(f"Le solde du compte de {self.titulaire} est de {self.solde} CHF.")
+
     def transactions(self, montant_echange, compte_recevant) :
        if montant_echange > self.solde :
            print("Transaction impossible car le solde est insuffisant")
@@ -23,20 +27,24 @@ class Banque :
     def __init__(self,nom) :
         self.nom = nom
         self.liste_compte = []
+
     def ajouter(self, compte) : 
         for i in self.liste_compte :
             if i.titulaire == compte.titulaire :
                 print("Ce compte est déjà dans la base de donnée.")
                 return
         self.liste_compte.append(compte)
+
     def afficher(self) :
         for i in self.liste_compte :
             print(f"{i.titulaire} : {i.solde} CHF")
+
     def trouver_compte(self, titulaire) :
         for i in self.liste_compte :
             if i.titulaire == titulaire :
                 return i
         return None
+    
     def transfert (self, nom1, nom2, montant) :
         c1 = self.trouver_compte(nom1)
         c2 = self.trouver_compte(nom2)
@@ -44,6 +52,7 @@ class Banque :
             print("L'un des comptes n'existe pas, transfert impossible")
             return
         c1.transactions(montant,c2)
+        
     def transfert_inter(self, titulaire1, titulaire2, autre_banque, montant):
         c1 = self.trouver_compte(titulaire1)
         c2 = autre_banque.trouver_compte(titulaire2)

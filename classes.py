@@ -27,6 +27,10 @@ class Plateau :
     
     def validation(self,tuile,x,y) :
         voisins = self.voisins(x,y)
+        if voisins["nord"] is None and voisins["sud"] is None and voisins["est"] is None and voisins["ouest"] is None:
+            return False
+        if (x,y) in self.tuiles:
+            return False
         if voisins["nord"] and voisins["nord"].sud != tuile.nord:
             return False
         if voisins["sud"] and voisins["sud"].nord != tuile.sud:

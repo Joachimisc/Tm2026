@@ -85,7 +85,7 @@ class Jeu :
 
     def deroulement_partie(self,plateau) :
         random.shuffle(self.pioche)
-        plateau.placement(self.pioche.pop(),0,0)
+        plateau.tuiles[(0,0)] = self.pioche.pop()
         while self.pioche :
             continuer = self.jouer_tour(plateau)
             if not continuer :

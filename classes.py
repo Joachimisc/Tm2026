@@ -66,7 +66,7 @@ class Jeu :
         print(plateau.tuiles)
         tuile_joueur = self.pioche.pop()
         print("Voici votre tuile :",tuile_joueur)
-        rotation = int(input("Tournez la tuile de 90°(1,2,3 fois) :"))
+        rotation = int(input("Tournez la tuile de 90°(0,1,2,3 fois) :"))
         for i in range(rotation) :
             tuile_joueur.tourner()
         while True :
@@ -83,7 +83,7 @@ class Jeu :
     def changer_joueur(self) :
         self.index_joueur = (self.index_joueur + 1)% len(self.joueurs)
 
-    def deroulement_partie(self,plateau) :
+    def deroulement_jeu(self,plateau) :
         random.shuffle(self.pioche)
         plateau.tuiles[(0,0)] = self.pioche.pop()
         while self.pioche :

@@ -58,6 +58,12 @@ class Jeu :
         self.pioche = pioche
         self.index_joueur = 0
 
+    def __repr__(self) :
+        return f"Jeu(joueurs={self.joueurs}, pioche={self.pioche})"
+
+    def nombre_de_joueurs(self) :
+        return len(self.joueurs)   
+ 
     def jouer_tour(self,plateau) :
         joueur = self.joueurs[self.index_joueur]
         print(f"Tour de {joueur.nom}")  

@@ -1,9 +1,9 @@
 import classes
 import tuiles
+import affichage
 
 plateau = classes.Plateau()
-joueur1 = classes.Joueur("Joachim")
-joueur2 = classes.Joueur("Livio")
+joueurs = affichage.creation_joueurs()
 
-jeu = classes.Jeu([joueur1,joueur2],tuiles.pioche)
+jeu = classes.Jeu(joueurs,tuiles.pioche)
 jeu.deroulement_jeu(plateau)

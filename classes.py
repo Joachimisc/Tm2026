@@ -103,11 +103,7 @@ class Plateau :
             if type_cote == "R":
                 voisin = self.tuiles.get((x + dx, y + dy))
                 if voisin :
-                    points += self.compter_route(
-                        x + dx,
-                        y + dy,
-                        visites
-                    )
+                    points += self.compter_route(x + dx,y + dy,visites)
 
         return points
 

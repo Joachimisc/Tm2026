@@ -1,7 +1,5 @@
 def creation_joueurs():
-
     joueurs = []
-
     nombre_joueurs = int(input("Nombre de joueurs : "))
 
     for i in range(nombre_joueurs):
@@ -33,5 +31,16 @@ def afficher_placement_invalide():
 def afficher_tuile_placee():
     print("Tuile placée !")
 
+def afficher_points(joueur, points):
+    print(f"{joueur.nom} gagne {points} points !")
+    print(f"Score total : {joueur.score}")
+
+def afficher_classement(joueurs):
+    print("\nScores finaux :")
+
+    for joueur in joueurs:
+        print(f"{joueur.nom} : {joueur.score} points")
+
 def afficher_fin():
     print("Partie terminée !")
+

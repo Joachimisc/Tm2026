@@ -1,4 +1,5 @@
 import affichage
+import random
 
 class Tuile :
 
@@ -59,6 +60,86 @@ class Plateau :
             self.tuiles[(x, y)] = tuile
             return True
         return False
+    
+    def extremite_route(self, tuile):
+        compteur = 0
+        if tuile.nord == "R":
+            compteur += 1
+        if tuile.est == "R":
+            compteur += 1
+        if tuile.sud == "R":
+            compteur += 1
+        if tuile.ouest == "R":
+            compteur += 1
+
+        return compteur
+    
+    def compter_route(self, x, y, visites=None):
+        if visites is None:
+            visites = []
+        if (x, y) in visites:
+            return 0
+        visites.append((x, y))
+        points = 1
+        tuile = self.tuiles[(x, y)]
+        directions = {
+            "nord": (0, 1),
+            "sud": (0, -1),
+            "est": (1, 0),
+            "ouest": (-1, 0)
+        }
+        for cote in directions:
+            dx = directions[cote][0]
+            dy = directions[cote][1]
+            if cote == "nord":
+                type_cote = tuile.nord
+            elif cote == "sud": 
+                type_cote = tuile.sud
+            elif cote == "est":
+                type_cote = tuile.est
+            else:
+                type_cote = tuile.ouest
+
+            if type_cote == "R":
+                voisin = self.tuiles.get((x + dx, y + dy))
+                if voisin :
+                    points += self.compter_route(
+                        x + dx,
+                        y + dy,
+                        visites
+                    )
+
+        return points
+
+    def route_fermee(self, x, y, visites=None):
+        if visites is None:
+            visites = []
+        if (x, y) in visites:
+            return True
+        visites.append((x, y))
+        tuile = self.tuiles[(x, y)]
+        if tuile.nord == "R":
+            if (x, y + 1) not in self.tuiles:
+                return False
+            if not self.route_fermee(x, y + 1, visites):
+                return False
+        if tuile.sud == "R":
+            if (x, y - 1) not in self.tuiles:
+                return False
+            if not self.route_fermee(x, y - 1, visites):
+                return False
+        if tuile.est == "R":
+            if (x + 1, y) not in self.tuiles:
+                return False
+            if not self.route_fermee(x + 1, y, visites):
+                return False
+        if tuile.ouest == "R":
+            if (x - 1, y) not in self.tuiles:
+                return False
+            if not self.route_fermee(x - 1, y, visites):
+                return False
+
+        return True
 
 class Joueur :
     def __init__(self, nom):
@@ -97,6 +178,10 @@ class Jeu :
             x, y = affichage.demander_coordonnees()
             if plateau.placement(tuile_joueur, x, y):
                 affichage.afficher_tuile_placee()
+                if plateau.route_fermee(x, y):
+                    points = plateau.compter_route(x, y)
+                    joueur.score = joueur.score + points
+                    affichage.afficher_points(joueur, points)
                 break
             else:
                 affichage.afficher_placement_invalide()
@@ -108,6 +193,7 @@ class Jeu :
         self.index_joueur = (self.index_joueur + 1)% len(self.joueurs)
 
     def deroulement_jeu(self, plateau):
+        random.shuffle(self.pioche)
         plateau.tuiles[(0, 0)] = self.pioche.pop(0)
 
         while self.pioche:
@@ -116,3 +202,4 @@ class Jeu :
                 break
 
         affichage.afficher_fin()
+        affichage.afficher_classement(self.joueurs)

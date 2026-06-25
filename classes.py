@@ -114,29 +114,30 @@ class Plateau :
             return True
         visites.append((x, y))
         tuile = self.tuiles[(x, y)]
-        if tuile.nord == "R":
-            if (x, y + 1) not in self.tuiles:
-                return False
-            if not self.route_fermee(x, y + 1, visites):
-                return False
-        if tuile.sud == "R":
-            if (x, y - 1) not in self.tuiles:
-                return False
-            if not self.route_fermee(x, y - 1, visites):
-                return False
-        if tuile.est == "R":
-            if (x + 1, y) not in self.tuiles:
-                return False
-            if not self.route_fermee(x + 1, y, visites):
-                return False
-        if tuile.ouest == "R":
-            if (x - 1, y) not in self.tuiles:
-                return False
-            if not self.route_fermee(x - 1, y, visites):
-                return False
+        if tuile.nord == "R" or tuile.sud == "R" or tuile.est == "R" or tuile.ouest == "R":
+            if tuile.nord == "R":
+                if (x, y + 1) not in self.tuiles:
+                    return False
+                if not self.route_fermee(x, y + 1, visites):
+                    return False
+            if tuile.sud == "R":
+                if (x, y - 1) not in self.tuiles:
+                    return False
+                if not self.route_fermee(x, y - 1, visites):
+                    return False
+            if tuile.est == "R":
+                if (x + 1, y) not in self.tuiles:
+                    return False
+                if not self.route_fermee(x + 1, y, visites):
+                    return False
+            if tuile.ouest == "R":
+                if (x - 1, y) not in self.tuiles:
+                    return False
+                if not self.route_fermee(x - 1, y, visites):
+                    return False
 
-        return True
-
+            return True
+        return False 
 class Joueur :
     def __init__(self, nom):
         self.nom = nom

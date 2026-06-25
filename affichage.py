@@ -9,7 +9,7 @@ def creation_joueurs():
     return joueurs
 
 def afficher_tour(joueur):
-    print(f"\nTour de {joueur}")
+    print(f"\nTour de {joueur.nom}")
 
 def afficher_plateau(plateau):
     print(plateau.tuiles)
@@ -18,7 +18,7 @@ def afficher_tuile(tuile):
     print("Voici votre tuile :", tuile)
 
 def demander_rotation():
-    return int(input("Tournez la tuile de 90° (0,1,2,3 fois) : "))
+    return int(input("Tournez la tuile de 90° dans le sens horaire (0,1,2,3 fois) : "))
 
 def demander_coordonnees():
     x = int(input("Entrez une coordonnée x : "))

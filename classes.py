@@ -61,20 +61,8 @@ class Plateau :
             return True
         return False
     
-    def extremite_route(self, tuile):
-        compteur = 0
-        if tuile.nord == "R":
-            compteur += 1
-        if tuile.est == "R":
-            compteur += 1
-        if tuile.sud == "R":
-            compteur += 1
-        if tuile.ouest == "R":
-            compteur += 1
-
-        return compteur
     
-    def compter_route(self, x, y, visites=None):
+    def compteur_route(self, x, y, visites=None):
         if visites is None:
             visites = []
         if (x, y) in visites:
@@ -103,7 +91,7 @@ class Plateau :
             if type_cote == "R":
                 voisin = self.tuiles.get((x + dx, y + dy))
                 if voisin :
-                    points += self.compter_route(x + dx,y + dy,visites)
+                    points += self.compteur_route(x + dx,y + dy,visites)
 
         return points
 
@@ -138,6 +126,84 @@ class Plateau :
 
             return True
         return False 
+    
+    def extremite_ville(self, tuile):
+        compteur = 0
+        if tuile.nord == "V":
+            compteur += 1
+        if tuile.est == "V":
+            compteur += 1
+        if tuile.sud == "V":
+            compteur += 1
+        if tuile.ouest == "V":
+            compteur += 1
+
+        return compteur
+    
+    def compteur_ville(self, x, y, visites=None):
+        if visites is None:
+            visites = []
+        if (x, y) in visites:
+            return 0
+        visites.append((x, y))
+        points = 0
+        tuile = self.tuiles[(x, y)]
+
+        if tuile.nord == "V":
+            voisin = self.tuiles.get((x, y + 1))
+            if voisin and voisin.sud == "V":
+                points += self.compteur_ville(x, y + 1, visites)
+        if tuile.sud == "V":
+            voisin = self.tuiles.get((x, y - 1))
+            if voisin and voisin.nord == "V":
+                points += self.compteur_ville(x, y - 1, visites)
+        if tuile.est == "V":
+            voisin = self.tuiles.get((x + 1, y))
+            if voisin and voisin.ouest == "V":
+                points += self.compteur_ville(x + 1, y, visites)
+        if tuile.ouest == "V":
+            voisin = self.tuiles.get((x - 1, y))
+            if voisin and voisin.est == "V":
+                points += self.compteur_ville(x - 1, y, visites)
+
+        return points
+    
+    def ville_fermee(self, x, y, visites=None):
+        if visites is None:
+            visites = []
+        if (x, y) in visites:
+            return True
+        visites.append((x, y))
+        tuile = self.tuiles[(x, y)]
+
+        if self.extremite_ville(tuile) == 0:
+            return False
+        if tuile.nord == "V":
+            voisin = self.tuiles.get((x, y + 1))
+            if voisin is None or voisin.sud != "V":
+                return False
+            if not self.ville_fermee(x, y + 1, visites):
+                return False
+        if tuile.sud == "V":
+            voisin = self.tuiles.get((x, y - 1))
+            if voisin is None or voisin.nord != "V":
+                return False
+            if not self.ville_fermee(x, y - 1, visites):
+                return False
+        if tuile.est == "V":
+            voisin = self.tuiles.get((x + 1, y))
+            if voisin is None or voisin.ouest != "V":
+                return False
+            if not self.ville_fermee(x + 1, y, visites):
+                return False
+        if tuile.ouest == "V":
+            voisin = self.tuiles.get((x - 1, y))
+            if voisin is None or voisin.est != "V":
+                return False
+            if not self.ville_fermee(x - 1, y, visites):
+                return False
+
+        return True
 class Joueur :
     def __init__(self, nom):
         self.nom = nom
@@ -179,6 +245,10 @@ class Jeu :
                     points = plateau.compter_route(x, y)
                     joueur.score = joueur.score + points
                     affichage.afficher_points(joueur, points)
+                if plateau.ville_fermee(x, y):
+                    points = plateau.compter_ville(x, y)
+                    joueur.score += points * 2
+                    affichage.afficher_points(joueur, points * 2)
                 break
             else:
                 affichage.afficher_placement_invalide()

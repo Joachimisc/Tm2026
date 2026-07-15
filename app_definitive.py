@@ -18,4 +18,5 @@ def accueil():
         ui.navigate.to('/jeu')
 
     ui.button("Commencer", on_click=commencer)
+    
 ui.run()

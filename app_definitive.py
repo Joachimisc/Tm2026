@@ -14,12 +14,27 @@ def accueil():
     def commencer():
         global partie
         joueurs = [classes.Joueur(nom1.value),classes.Joueur(nom2.value)]
-        jeu = classes.Jeu(joueurs, tuiles.pioche)
-        plateau.tuiles[(0,0)] = jeu.pioche.pop(0)
+        plateau = classes.Plateau()
+        jeu = classes.Jeu(joueurs, tuiles.pioche, plateau)
         partie = jeu
+        partie.plateau.tuiles[(0,0)] = partie.pioche.pop(0)
         ui.navigate.to('/jeu')
 
     ui.button("Commencer", on_click=commencer)
+
+@ui.refreshable
+def afficher_plateau():
+    ui.label("Plateau :")
+    for position, tuile in partie.plateau.tuiles.items():
+        ui.label(f"{position} : {tuile}")
+
+@ui.refreshable
+def afficher_joueur():
+    joueur = partie.joueurs[partie.index_joueur]
+    ui.label(f"Tour de {joueur.nom}")
+    ui.label(f"Score : {joueur.score}")
+    if partie.tuile.actuelle :
+        ui.label(f"Votre tuile : {partie.tuile.actuelle}")
 
 @ui.page('/jeu')
 def jeu():
@@ -31,5 +46,13 @@ def jeu():
     ui.label(f"Tour de {joueur.nom}")
     ui.label(f"Score : {joueur.score}")
     ui.label(f"Tuiles restantes : {len(partie.pioche)}")
+    ui.separator()
+    afficher_plateau()
+    afficher_joueur()
+    def piocher():
+        partie.piocher_tuile()
+        if partie.tuile:
+            ui.label(f"Tuile piochée : {partie.tuile}")
+    ui.button("Piocher une tuile", on_click=piocher)
 
 ui.run()

@@ -213,13 +213,22 @@ class Joueur :
 
 class Jeu :
 
-    def __init__(self, joueurs, pioche):
+    def __init__(self, joueurs, pioche, plateau):
         self.joueurs = joueurs
         self.pioche = pioche
+        self.plateau = plateau
         self.index_joueur = 0
+        self.tuile_actuelle = None
 
     def __repr__(self):
         return f"Jeu(joueurs={self.joueurs}, pioche={self.pioche})"
+    
+    def piocher_tuile(self):
+        if self.pioche:
+            self.tuile_actuelle = self.pioche.pop()
+            return self.tuile_actuelle
+        else:
+            return None
 
     def nombre_de_joueurs(self):
         return len(self.joueurs)

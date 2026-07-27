@@ -13,12 +13,7 @@ class Tuile :
         return f"Tuile({self.nord},{self.est},{self.sud},{self.ouest})"
 
     def tourner(self):
-        self.nord, self.est, self.sud, self.ouest = (
-            self.ouest,
-            self.nord,
-            self.est,
-            self.sud
-        )
+        self.nord, self.est, self.sud, self.ouest = (self.ouest, self.nord, self.est, self.sud)
 
 class Plateau :
 
@@ -26,22 +21,14 @@ class Plateau :
         self.tuiles = {}
 
     def voisins(self, x, y):
-        return {
-            "nord": self.tuiles.get((x, y + 1)),
-            "sud": self.tuiles.get((x, y - 1)),
-            "est": self.tuiles.get((x + 1, y)),
-            "ouest": self.tuiles.get((x - 1, y))
-        }
+        return {"nord": self.tuiles.get((x, y + 1)), "sud": self.tuiles.get((x, y - 1)), "est": self.tuiles.get((x + 1, y)), "ouest": self.tuiles.get((x - 1, y))}
 
     def validation(self, tuile, x, y):
         voisins = self.voisins(x, y)
 
         if (x, y) in self.tuiles:
             return False
-        if (voisins["nord"] is None and
-            voisins["sud"] is None and
-            voisins["est"] is None and
-            voisins["ouest"] is None):
+        if (voisins["nord"] is None and voisins["sud"] is None and voisins["est"] is None and voisins["ouest"] is None):
             return False
         if voisins["nord"] and voisins["nord"].sud != tuile.nord:
             return False
@@ -56,11 +43,9 @@ class Plateau :
 
     def placement(self, tuile, x, y):
         if self.validation(tuile, x, y):
-
             self.tuiles[(x, y)] = tuile
             return True
         return False
-    
     
     def compteur_route(self, x, y, visites=None):
         if visites is None:
@@ -70,12 +55,7 @@ class Plateau :
         visites.append((x, y))
         points = 1
         tuile = self.tuiles[(x, y)]
-        directions = {
-            "nord": (0, 1),
-            "sud": (0, -1),
-            "est": (1, 0),
-            "ouest": (-1, 0)
-        }
+        directions = {"nord": (0, 1),"sud": (0, -1),"est": (1, 0),"ouest": (-1, 0)}
         for cote in directions:
             dx = directions[cote][0]
             dy = directions[cote][1]

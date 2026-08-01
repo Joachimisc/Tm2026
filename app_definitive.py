@@ -43,17 +43,37 @@ def jeu():
         ui.label("Aucune partie en cours.")
         return
     ui.label("La partie a commencé !")
-    ui.label(f"Tuiles restantes : {len(partie.pioche)}")
     ui.separator()
     afficher_plateau()
     afficher_joueur()
+
     def piocher():
-        partie.piocher_tuile()
-        afficher_joueur.refresh()
+        if partie.tuile_actuelle is None:
+            partie.piocher_tuile()
+            afficher_joueur.refresh()
+        else :
+            ui.notify("Piochez d'abord une tuile.")
     ui.button("Piocher une tuile", on_click=piocher)
+
     def tourner_tuile():
         if partie.tuile_actuelle :
             partie.tuile_actuelle.tourner()
             afficher_joueur.refresh()
     ui.button("Tourner la tuile de 90° vers la droite", on_click=tourner_tuile)
+    x = ui.number("coordonnée x", value = 0)
+    y = ui.number("coordonnée y", value = 0)
+
+    def placer_tuile(): 
+        if partie.tuile_actuelle is None :
+            ui.notify("Vous devez piocher une tuile avant de la placer.")
+            return
+        if partie.plateau.placement(partie.tuile_actuelle, int(x.value), int(y.value)):
+            partie.tuile_actuelle = None
+            partie.changer_joueur()
+            afficher_joueur.refresh()
+            afficher_plateau.refresh()
+        else :
+            ui.notify("Placement non valide.")
+    ui.button("Placer la tuile", on_click=placer_tuile)
+        
 ui.run()

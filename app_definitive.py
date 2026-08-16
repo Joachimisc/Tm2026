@@ -1,7 +1,8 @@
-from nicegui import ui
+from nicegui import ui, app
 import classes
 import tuiles
 
+app.add_static_files('/tuiles', 'tuiles.py')
 plateau = classes.Plateau()
 
 partie = None
@@ -43,6 +44,7 @@ def jeu():
         ui.label("Aucune partie en cours.")
         return
     ui.label("La partie a commencé !")
+    ui.image("/tuiles/tuile1.png", width=100, height=100)
     ui.separator()
     afficher_plateau()
     afficher_joueur()

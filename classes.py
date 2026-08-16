@@ -3,18 +3,21 @@ import random
 
 class Tuile :
 
-    def __init__(self, nord, est, sud, ouest):
+    def __init__(self, nord, est, sud, ouest, image):
         self.nord = nord
         self.est = est
         self.sud = sud
         self.ouest = ouest
+        self.image=image
+        self.rotation = 0 
 
     def __repr__(self):
         return f"Tuile({self.nord},{self.est},{self.sud},{self.ouest})"
 
     def tourner(self):
         self.nord, self.est, self.sud, self.ouest = (self.ouest, self.nord, self.est, self.sud)
-
+        self.rotation = (self.rotation + 90) % 360
+        
 class Plateau :
 
     def __init__(self):

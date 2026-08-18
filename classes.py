@@ -3,12 +3,12 @@ import random
 
 class Tuile :
 
-    def __init__(self, nord, est, sud, ouest, image):
+    def __init__(self, nord, est, sud, ouest, numéro):
         self.nord = nord
         self.est = est
         self.sud = sud
         self.ouest = ouest
-        self.image=image
+        self.numéro = numéro
         self.rotation = 0 
 
     def __repr__(self):
@@ -208,7 +208,8 @@ class Jeu :
     
     def piocher_tuile(self):
         if self.pioche:
-            self.tuile_actuelle = self.pioche.pop()
+            self.tuile_actuelle = random.choice(self.pioche)
+            self.pioche.remove(self.tuile_actuelle)
             return self.tuile_actuelle
         else:
             return None

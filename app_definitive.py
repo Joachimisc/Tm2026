@@ -2,7 +2,7 @@ from nicegui import ui, app
 import classes
 import tuiles
 
-app.add_static_files('/tuiles', 'tuiles.py')
+app.add_static_files('/images', 'images')
 plateau = classes.Plateau()
 
 partie = None
@@ -18,7 +18,8 @@ def accueil():
         plateau = classes.Plateau()
         jeu = classes.Jeu(joueurs, tuiles.pioche, plateau)
         partie = jeu
-        partie.plateau.tuiles[(0,0)] = partie.pioche.pop(0)
+        partie.plateau.tuiles[(0,0)] = tuiles.tuile_depart
+        partie.pioche.remove(tuiles.tuile_depart)
         ui.navigate.to('/jeu')
 
     ui.button("Commencer", on_click=commencer)
@@ -27,7 +28,8 @@ def accueil():
 def afficher_plateau():
     ui.label("Plateau :")
     for position, tuile in partie.plateau.tuiles.items():
-        ui.label(f"{position} : {tuile}")
+        nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
+        ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px;")
 
 @ui.refreshable
 def afficher_joueur():
@@ -44,7 +46,7 @@ def jeu():
         ui.label("Aucune partie en cours.")
         return
     ui.label("La partie a commencé !")
-    ui.image("/tuiles/tuile1.png", width=100, height=100)
+    ui.image("/images/PPPP.png").style("width: 100px; height: 100px;")
     ui.separator()
     afficher_plateau()
     afficher_joueur()

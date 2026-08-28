@@ -3,7 +3,6 @@ import classes
 import tuiles
 
 app.add_static_files('/images', 'images')
-plateau = classes.Plateau()
 
 partie = None
 
@@ -27,9 +26,31 @@ def accueil():
 @ui.refreshable
 def afficher_plateau():
     ui.label("Plateau :")
-    for position, tuile in partie.plateau.tuiles.items():
-        nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
-        ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px;")
+
+    with ui.grid(columns=11).style("gap: 0px;") :
+        for y in range(5, -6, -1) :
+            for x in range(-5, 6) :
+
+                tuile = partie.plateau.tuiles.get((x,y))
+
+                #with ui.card().style("width: 100px; height: 100px; border: 1px solid black; box-sizing : border-box;") :
+                    #ui.label(f"{x},{y}")
+
+                if tuile :
+                    nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
+                    ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px; padding:0px;")
+                else :
+                    with ui.card().style("width: 100px; height: 100px; border: 1px solid black; box-sizing : border-box;") :
+                        ui.label(f"{x},{y}")
+                
+
+                
+
+            
+
+    #for position, tuile in partie.plateau.tuiles.items():
+        #nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
+        #ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px;")
 
 @ui.refreshable
 def afficher_joueur():
@@ -39,6 +60,8 @@ def afficher_joueur():
     ui.label(f"Tuiles réstantes :{len(partie.pioche)}")
     if partie.tuile_actuelle :
         ui.label(f"Votre tuile : {partie.tuile_actuelle}")
+        nom_image = f"{partie.tuile_actuelle.nord}{partie.tuile_actuelle.est}{partie.tuile_actuelle.sud}{partie.tuile_actuelle.ouest}.png"
+        ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px;")
 
 @ui.page('/jeu')
 def jeu():
@@ -46,7 +69,7 @@ def jeu():
         ui.label("Aucune partie en cours.")
         return
     ui.label("La partie a commencé !")
-    ui.image("/images/PPPP.png").style("width: 100px; height: 100px;")
+    #ui.image("/images/PPPP.png").style("width: 100px; height: 100px;")
     ui.separator()
     afficher_plateau()
     afficher_joueur()

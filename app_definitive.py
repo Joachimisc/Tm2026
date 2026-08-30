@@ -56,7 +56,8 @@ def afficher_plateau():
 def afficher_joueur():
     joueur = partie.joueurs[partie.index_joueur]
     ui.label(f"Tour de {joueur.nom}")
-    ui.label(f"Score : {joueur.score}")
+    ui.label(f"Score de {partie.joueurs[0].nom}: {partie.joueurs[0].score}")
+    ui.label(f"Score de {partie.joueurs[1].nom}: {partie.joueurs[1].score}")
     ui.label(f"Tuiles réstantes :{len(partie.pioche)}")
     if partie.tuile_actuelle :
         ui.label(f"Votre tuile : {partie.tuile_actuelle}")
@@ -88,13 +89,26 @@ def jeu():
             afficher_joueur.refresh()
     ui.button("Tourner la tuile de 90° vers la droite", on_click=tourner_tuile)
     x = ui.number("coordonnée x", value = 0)
-    y = ui.number("coordonnée y", value = 0)
+    y = ui.number("coordonnée y", value = 0) 
 
     def placer_tuile(): 
         if partie.tuile_actuelle is None :
             ui.notify("Vous devez piocher une tuile avant de la placer.")
             return
-        if partie.plateau.placement(partie.tuile_actuelle, int(x.value), int(y.value)):
+        x_placement = int(x.value)
+        y_placement = int(y.value)
+
+        if partie.plateau.placement(partie.tuile_actuelle, x_placement, y_placement):
+            points = partie.calculer_score(x_placement, y_placement)
+            if points > 0 :
+                ui.notify(f"Vous avez gagné {points} points !")
+                partie.tuile_actuelle = None
+                joueur= partie.joueurs[partie.index_joueur]
+                if joueur.score >= 3:
+                    ui.notify(f"{partie.joueurs[partie.index_joueur].nom} a gagné !!!")
+                    afficher_joueur.refresh()
+                    afficher_plateau.refresh()
+                    return
             partie.tuile_actuelle = None
             partie.changer_joueur()
             afficher_joueur.refresh()
@@ -102,5 +116,7 @@ def jeu():
         else :
             ui.notify("Placement non valide.")
     ui.button("Placer la tuile", on_click=placer_tuile)
+
+
         
 ui.run()

@@ -32,7 +32,6 @@ tuile27 = Tuile("P","V","V","V",27)
 tuile28 = Tuile("R","P","P","R",28)
 tuile29 = Tuile("R","P","P","R",29)
 tuile30 = Tuile("R","P","P","R",30)
-tuile31 = Tuile("R","P","P","V",31)
 tuile33 = Tuile("R","P","R","R",33)
 tuile34 = Tuile("R","P","R","V",34)
 tuile35 = Tuile("R","R","P","P",35)
@@ -49,7 +48,6 @@ tuile45 = Tuile("R","R","V","R",45)
 tuile46 = Tuile("R","R","V","V",46)
 tuile47 = Tuile("R","V","R","P",47)
 tuile48 = Tuile("R","V","R","R",48)
-tuile49 = Tuile("R","V","V","P",49)
 tuile50 = Tuile("R","V","V","R",50)
 tuile51 = Tuile("R","V","V","R",51)
 tuile52 = Tuile("R","V","V","V",52)
@@ -58,11 +56,9 @@ tuile54 = Tuile("V","P","P","P",54)
 tuile55 = Tuile("V","P","P","V",55)
 tuile56 = Tuile("V","P","P","V",56)
 tuile57 = Tuile("V","P","V","P",57)
-tuile58 = Tuile("V","P","V","R",58)
 tuile59 = Tuile("V","R","P","R",59)
 tuile60 = Tuile("V","R","R","V",60)
 tuile61 = Tuile("V","R","R","V",61)
-tuile62 = Tuile("V","R","V","R",62)
 tuile63 = Tuile("V","V","P","P",63)
 tuile64 = Tuile("V","V","P","P",64)
 tuile65 = Tuile("V","V","P","V",65)
@@ -77,10 +73,10 @@ tuile72 = Tuile("V","V","V","V",72)
 pioche = [
     tuile_depart, tuile1, tuile2, tuile3, tuile4, tuile5, tuile6, tuile7, tuile8, tuile9, tuile10,
     tuile11, tuile12, tuile13, tuile14, tuile15, tuile16, tuile17, tuile18, tuile19, tuile20,
-    tuile21, tuile22, tuile23, tuile24, tuile25, tuile26, tuile27, tuile28, tuile29, tuile30,
-    tuile31, tuile33, tuile34, tuile35, tuile36, tuile37, tuile38, tuile39, tuile40,
-    tuile41, tuile42, tuile43, tuile44, tuile45, tuile46, tuile47, tuile48, tuile49, tuile50,
-    tuile51, tuile52, tuile53, tuile54, tuile55, tuile56, tuile57, tuile58, tuile59, tuile60,
-    tuile61, tuile62, tuile63, tuile64, tuile65, tuile66, tuile67, tuile68, tuile69, tuile70,
+    tuile21, tuile22, tuile23, tuile24, tuile25, tuile26, tuile27, tuile28, tuile29, tuile30, 
+    tuile33, tuile34, tuile35, tuile36, tuile37, tuile38, tuile39, tuile40,
+    tuile41, tuile42, tuile43, tuile44, tuile45, tuile46, tuile47, tuile48, tuile50,
+    tuile51, tuile52, tuile53, tuile54, tuile55, tuile56, tuile57, tuile59, tuile60,
+    tuile61, tuile63, tuile64, tuile65, tuile66, tuile67, tuile68, tuile69, tuile70,
     tuile71, tuile72
 ]

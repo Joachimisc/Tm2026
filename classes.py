@@ -23,11 +23,11 @@ class Plateau :
     def __init__(self):
         self.tuiles = {}
 
-    def voisins(self, x, y):
+    def trouver_voisins(self, x, y):
         return {"nord": self.tuiles.get((x, y + 1)), "sud": self.tuiles.get((x, y - 1)), "est": self.tuiles.get((x + 1, y)), "ouest": self.tuiles.get((x - 1, y))}
 
     def validation(self, tuile, x, y):
-        voisins = self.voisins(x, y)
+        voisins = self.trouver_voisins(x, y)
 
         if (x, y) in self.tuiles:
             return False
@@ -50,7 +50,7 @@ class Plateau :
             return True
         return False
 
-    def extremite_route(self, tuile):
+    def fin_route(self, tuile):
         compteur = 0
         if tuile.nord == "R" :
             compteur += 1
@@ -61,7 +61,8 @@ class Plateau :
         if tuile.ouest == "R" :
             compteur += 1
         return compteur 
-    
+
+    #fonction récurssive pour compter le nombres de tuiles route sur lesquelles on peut se déplacer à partir d'une tuile donnée
     def compteur_route(self, x, y, direction, visites=None):
         if visites is None:
             visites = []
@@ -107,34 +108,44 @@ class Plateau :
 
         return points
 
-    def route_fermee(self, x, y, direction, visites=None):
-     if visites is None:
-        visites = []
+# fonction récurssive pour vérifier si une route est fermée  
+    def route_fermee(self, x, y, direction, visites=None, depart=None):
+        if visites is None:
+            visites = set()
+        if depart is None:
+            depart = (x, y)
         if (x, y) in visites:
-            return True
-        visites.append((x, y))
-        tuile = self.tuiles[(x, y)]
-        if self.extremite_route(tuile) >= 3:
-            return True
+            return (x, y) == depart
+        visites.add((x, y))
+        tuile = self.tuiles.get((x, y))
+        if tuile is None:
+            return False
         if direction == "nord":
             nx, ny = x, y + 1
+            cote = tuile.nord
             cote_voisin = "sud"
         elif direction == "sud":
-                nx, ny = x, y - 1
-                cote_voisin = "nord"
+            nx, ny = x, y - 1
+            cote = tuile.sud
+            cote_voisin = "nord"
         elif direction == "est":
-                nx, ny = x + 1, y
-                cote_voisin = "ouest"
-        else:
-                nx, ny = x - 1, y
-                cote_voisin = "est"
-        voisin = self.tuiles.get((nx,ny))
+            nx, ny = x + 1, y
+            cote = tuile.est
+            cote_voisin = "ouest"
+        elif direction == "ouest":
+            nx, ny = x - 1, y
+            cote = tuile.ouest
+            cote_voisin = "est"
+        if cote != "R":
+            return False
+        voisin = self.tuiles.get((nx, ny))
         if voisin is None:
             return False
         if getattr(voisin, cote_voisin) != "R":
             return False
-        return self.route_fermee(nx, ny, cote_voisin, visites)
-     
+        return self.route_fermee(nx, ny, cote_voisin, visites, depart)
+        
+    #pas encore utile(le comptage des villes ne marche pas encore)
     def extremite_ville(self, tuile):
         compteur = 0
         if tuile.nord == "V":
@@ -147,7 +158,8 @@ class Plateau :
             compteur += 1
 
         return compteur
-    
+
+    #pareil
     def compteur_ville(self, x, y, visites=None):
         if visites is None:
             visites = []
@@ -175,8 +187,9 @@ class Plateau :
                 points += self.compteur_ville(x - 1, y, visites)
 
         return points
-    
-    def ville_fermee(self, x, y, visites=None):
+
+    #pareil 
+    def vérifier_ville_fermee(self, x, y, visites=None):
         if visites is None:
             visites = []
         if (x, y) in visites:
@@ -190,25 +203,25 @@ class Plateau :
             voisin = self.tuiles.get((x, y + 1))
             if voisin is None or voisin.sud != "V":
                 return False
-            if not self.ville_fermee(x, y + 1, visites):
+            if not self.vérifier_ville_fermee(x, y + 1, visites):
                 return False
         if tuile.sud == "V":
             voisin = self.tuiles.get((x, y - 1))
             if voisin is None or voisin.nord != "V":
                 return False
-            if not self.ville_fermee(x, y - 1, visites):
+            if not self.vérifier_ville_fermee(x, y - 1, visites):
                 return False
         if tuile.est == "V":
             voisin = self.tuiles.get((x + 1, y))
             if voisin is None or voisin.ouest != "V":
                 return False
-            if not self.ville_fermee(x + 1, y, visites):
+            if not self.vérifier_ville_fermee(x + 1, y, visites):
                 return False
         if tuile.ouest == "V":
             voisin = self.tuiles.get((x - 1, y))
             if voisin is None or voisin.est != "V":
                 return False
-            if not self.ville_fermee(x - 1, y, visites):
+            if not self.vérifier_ville_fermee(x - 1, y, visites):
                 return False
 
         return True
@@ -240,7 +253,7 @@ class Jeu :
         else:
             return None
 
-    def nombre_de_joueurs(self):
+    def nb_de_joueurs(self):
         return len(self.joueurs)
     
     def jouer_tour(self, plateau):
@@ -264,7 +277,7 @@ class Jeu :
                     points = plateau.compteur_route(x, y)
                     joueur.score = joueur.score + points
                     affichage.afficher_points(joueur, points)
-                if plateau.ville_fermee(x, y):
+                if plateau.vérifier_ville_fermee(x, y):
                     points = plateau.compteur_ville(x, y)
                     joueur.score += points * 2
                     affichage.afficher_points(joueur, points * 2)
@@ -274,37 +287,37 @@ class Jeu :
         self.changer_joueur()
 
         return True
-
+# fonction pour calculer le score d'un joueur après avoir placé une tuile de route (pas ville encore). on regarde de ou on vient
+# et comment on peut continuer. On regarde dans quelles directions on peut aller (par exemple pour les carrefor)
     def calculer_score(self, x, y):
         joueur = self.joueurs[self.index_joueur]
-        voisins = self.plateau.voisins(x, y)
+        voisins = self.plateau.trouver_voisins(x, y)
         for direction, voisin in voisins.items():
-            if voisin is not None:
-                if direction == "nord" and voisin.sud == "R":
-                    if self.plateau.route_fermee(x, y, direction):
-                        points = self.plateau.compteur_route(x, y, direction)
-                        joueur.score += points
-                        return points
+            if voisin is None:
+                continue
+            if direction == "nord" and voisin.sud != "R":
+                continue
+            if direction == "sud" and voisin.nord != "R":
+                continue
+            if direction == "est" and voisin.ouest != "R":
+                continue
+            if direction == "ouest" and voisin.est != "R":
+                continue
+            if self.plateau.fin_route(self.plateau.tuiles[(x, y)]) >= 3:
+                points = 1
+                if direction == "nord":
+                    points += self.plateau.compteur_route(x, y + 1, "sud")
+                elif direction == "sud":
+                    points += self.plateau.compteur_route(x, y - 1, "nord")
+                elif direction == "est":
+                    points += self.plateau.compteur_route(x + 1, y, "ouest")
+                elif direction == "ouest":
+                    points += self.plateau.compteur_route(x - 1, y, "est")
 
-                if direction == "sud" and voisin.nord == "R":
-                    if self.plateau.route_fermee(x, y, direction):
-                        points = self.plateau.compteur_route(x, y, direction)
-                        joueur.score += points
-                        return points
-
-                if direction == "est" and voisin.ouest == "R":
-                    if self.plateau.route_fermee(x, y, direction):
-                        points = self.plateau.compteur_route(x, y, direction)
-                        joueur.score += points
-                        return points
-
-                if direction == "ouest" and voisin.est == "R":
-                    if self.plateau.route_fermee(x, y, direction):
-                        points = self.plateau.compteur_route(x, y, direction)
-                        joueur.score += points
-                        return points
+                joueur.score += points
+                return points
                     
-        if self.plateau.ville_fermee(x, y):
+        if self.plateau.vérifier_ville_fermee(x, y):
             points = self.plateau.compteur_ville(x, y) * 2
             joueur.score += points
             return points
@@ -313,7 +326,7 @@ class Jeu :
     def changer_joueur(self):
         self.index_joueur = (self.index_joueur + 1)% len(self.joueurs)
 
-    def deroulement_jeu(self, plateau):
+    def jouer(self, plateau):
         random.shuffle(self.pioche)
         plateau.tuiles[(0, 0)] = self.pioche.pop(0)
 
@@ -321,12 +334,13 @@ class Jeu :
             continuer = self.jouer_tour(plateau)
             if not continuer:
                 break
+    # a completer et afficher une page quand le jeu est terminé
     def vérifier_victoire(self): 
-        if self.joueurs[self.index_joueur].score >= 9:
+        if self.joueurs[self.index_joueur].score >= 15:
             self.partie_terminée = True
             return True
         return False
         
 
-        affichage.afficher_fin()
-        affichage.afficher_classement(self.joueurs)
+    #affichage.afficher_fin()
+    #affichage.afficher_classement(self.joueurs)

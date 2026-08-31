@@ -104,7 +104,7 @@ def jeu():
                 ui.notify(f"Vous avez gagné {points} points !")
                 partie.tuile_actuelle = None
                 joueur= partie.joueurs[partie.index_joueur]
-                if joueur.score >= 3:
+                if joueur.score >= 15  :
                     ui.notify(f"{partie.joueurs[partie.index_joueur].nom} a gagné !!!")
                     afficher_joueur.refresh()
                     afficher_plateau.refresh()

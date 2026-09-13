@@ -23,13 +23,38 @@ def accueil():
 
     ui.button("Commencer", on_click=commencer)
 
+def placer_tuile(x,y): 
+    if partie.tuile_actuelle is None :
+        ui.notify("Vous devez piocher une tuile avant de la placer.")
+        return
+    x_placement = x
+    y_placement = y
+
+    if partie.plateau.placement(partie.tuile_actuelle, x_placement, y_placement):
+            points = partie.calculer_score(x_placement, y_placement)
+            if points > 0 :
+                ui.notify(f"Vous avez gagné {points} points !")
+                partie.tuile_actuelle = None
+                joueur= partie.joueurs[partie.index_joueur]
+                if joueur.score >= 15  :
+                    ui.notify(f"{partie.joueurs[partie.index_joueur].nom} a gagné !!!")
+                    afficher_joueur.refresh()
+                    afficher_plateau.refresh()
+                    return
+            partie.tuile_actuelle = None
+            partie.changer_joueur()
+            afficher_joueur.refresh()
+            afficher_plateau.refresh()
+    else :
+            ui.notify("Placement non valide.")
+
 @ui.refreshable
 def afficher_plateau():
     ui.label("Plateau :")
 
-    with ui.grid(columns=11).style("gap: 0px;") :
-        for y in range(5, -6, -1) :
-            for x in range(-5, 6) :
+    with ui.grid(columns=13).style("gap: 0px;") :
+        for y in range(6, -7, -1) :
+            for x in range(-6, 7) :
 
                 tuile = partie.plateau.tuiles.get((x,y))
 
@@ -40,8 +65,8 @@ def afficher_plateau():
                     nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
                     ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px; padding:0px;")
                 else :
-                    with ui.card().style("width: 100px; height: 100px; border: 1px solid black; box-sizing : border-box;") :
-                        ui.label(f"{x},{y}")
+                    ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style("width: 100px; height: 100px; border: 1px solid black; box-sizing : border-box;") 
+                    #ui.label(f"{x},{y}")
                 
 
                 
@@ -91,31 +116,7 @@ def jeu():
     x = ui.number("coordonnée x", value = 0)
     y = ui.number("coordonnée y", value = 0) 
 
-    def placer_tuile(): 
-        if partie.tuile_actuelle is None :
-            ui.notify("Vous devez piocher une tuile avant de la placer.")
-            return
-        x_placement = int(x.value)
-        y_placement = int(y.value)
 
-        if partie.plateau.placement(partie.tuile_actuelle, x_placement, y_placement):
-            points = partie.calculer_score(x_placement, y_placement)
-            if points > 0 :
-                ui.notify(f"Vous avez gagné {points} points !")
-                partie.tuile_actuelle = None
-                joueur= partie.joueurs[partie.index_joueur]
-                if joueur.score >= 15  :
-                    ui.notify(f"{partie.joueurs[partie.index_joueur].nom} a gagné !!!")
-                    afficher_joueur.refresh()
-                    afficher_plateau.refresh()
-                    return
-            partie.tuile_actuelle = None
-            partie.changer_joueur()
-            afficher_joueur.refresh()
-            afficher_plateau.refresh()
-        else :
-            ui.notify("Placement non valide.")
-    ui.button("Placer la tuile", on_click=placer_tuile)
 
 
         

@@ -32,6 +32,14 @@ def placer_tuile(x,y):
 
     if partie.plateau.placement(partie.tuile_actuelle, x_placement, y_placement):
             points = partie.calculer_score(x_placement, y_placement)
+            points_ville = 0
+            if partie.plateau.extremite_ville(partie.plateau.tuiles[(x_placement, y_placement)]) > 0:
+                if partie.plateau.vérifier_ville_fermee(x_placement, y_placement):
+                    nombre_tuiles = partie.plateau.compteur_ville(x_placement, y_placement)
+                    points_ville = nombre_tuiles * 2
+                    joueur = partie.joueurs[partie.index_joueur]
+                    joueur.score += points_ville
+                    ui.notify(f"Ville terminée : {points_ville} points pour {partie.joueurs[partie.index_joueur]}!")
             if points > 0 :
                 ui.notify(f"Vous avez gagné {points} points !")
                 partie.tuile_actuelle = None
@@ -66,16 +74,7 @@ def afficher_plateau():
                     ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px; padding:0px;")
                 else :
                     ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style("width: 100px; height: 100px; border: 1px solid black; box-sizing : border-box;") 
-                    #ui.label(f"{x},{y}")
                 
-
-                
-
-            
-
-    #for position, tuile in partie.plateau.tuiles.items():
-        #nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
-        #ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px;")
 
 @ui.refreshable
 def afficher_joueur():
@@ -113,11 +112,6 @@ def jeu():
             partie.tuile_actuelle.tourner()
             afficher_joueur.refresh()
     ui.button("Tourner la tuile de 90° vers la droite", on_click=tourner_tuile)
-    x = ui.number("coordonnée x", value = 0)
-    y = ui.number("coordonnée y", value = 0) 
-
-
-
 
         
 ui.run()

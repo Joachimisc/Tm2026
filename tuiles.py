@@ -39,7 +39,6 @@ tuile36 = Tuile("R","R","P","P",36)
 tuile37 = Tuile("R","R","P","P",37)
 tuile38 = Tuile("R","R","P","R",38)
 tuile39 = Tuile("R","R","P","V",39)
-tuile40 = Tuile("R","R","R","R",40)
 tuile42 = Tuile("R","R","R","V",42)
 tuile43 = Tuile("R","R","V","P",43)
 tuile44 = Tuile("R","R","V","P",44)
@@ -72,7 +71,7 @@ pioche = [
     tuile_depart, tuile1, tuile2, tuile3, tuile4, tuile5, tuile6, tuile7, tuile8, tuile9, tuile10,
     tuile11, tuile12, tuile13, tuile14, tuile15, tuile16, tuile17, tuile18, tuile19, tuile20,
     tuile21, tuile22, tuile23, tuile24, tuile25, tuile26, tuile27, tuile28, tuile29, tuile30, 
-    tuile33, tuile34, tuile35, tuile36, tuile37, tuile38, tuile39, tuile40,
+    tuile33, tuile34, tuile35, tuile36, tuile37, tuile38, tuile39,
     tuile42, tuile43, tuile44, tuile45, tuile46, tuile47, tuile48, tuile50,
     tuile51, tuile52, tuile53, tuile54, tuile55, tuile56, tuile57, tuile59, tuile60,
     tuile61, tuile63, tuile64, tuile65, tuile66, tuile67, tuile68, tuile69, tuile70,

@@ -5,6 +5,7 @@ import tuiles
 app.add_static_files('/images', 'images')
 
 partie = None
+zone_pion = None
 
 @ui.page('/')
 def accueil():
@@ -23,6 +24,41 @@ def accueil():
 
     ui.button("Commencer", on_click=commencer)
 
+def poser_pion_route(tuile, joueur):
+    tuile.pion_route = joueur
+    continuer_tour()
+
+def poser_pion_ville(tuile, joueur):
+    tuile.pion_ville = joueur
+    continuer_tour()
+
+def placer_pion(x,y) :
+    tuile = partie.plateau.tuiles[(x, y)]
+    joueur = partie.joueurs[partie.index_joueur]
+
+    zone_pion.clear()
+    with zone_pion :
+        ui.label("Sur quelle partie voulez-vous poser votre pion ?")
+        with ui.row():
+            if "R" in [tuile.nord, tuile.est, tuile.sud, tuile.ouest]:
+                ui.button("Route", on_click=lambda: poser_pion_route(tuile, joueur))
+            if "V" in [tuile.nord, tuile.est, tuile.sud, tuile.ouest]:
+                ui.button("Ville", on_click=lambda: poser_pion_ville(tuile, joueur))
+
+def continuer_tour() :
+    partie.tuile_actuelle = None
+    partie.changer_joueur()
+    afficher_joueur.refresh()
+    afficher_plateau.refresh()
+
+def demander_pion(x,y) :
+    zone_pion.clear()
+    with zone_pion :
+        ui.notify("Tuile placée ! Voulez-vous placer un pion ?")
+        with ui.row() :
+            ui.button("Oui", on_click=lambda : placer_pion(x,y))
+            ui.button("Non", on_click=lambda : continuer_tour())
+
 def placer_tuile(x,y): 
     if partie.tuile_actuelle is None :
         ui.notify("Vous devez piocher une tuile avant de la placer.")
@@ -31,6 +67,7 @@ def placer_tuile(x,y):
     y_placement = y
 
     if partie.plateau.placement(partie.tuile_actuelle, x_placement, y_placement):
+            afficher_plateau.refresh()
             points = partie.calculer_score(x_placement, y_placement)
             points_ville = 0
             if partie.plateau.extremite_ville(partie.plateau.tuiles[(x_placement, y_placement)]) > 0:
@@ -42,17 +79,13 @@ def placer_tuile(x,y):
                     ui.notify(f"Ville terminée : {points_ville} points pour {partie.joueurs[partie.index_joueur]}!")
             if points > 0 :
                 ui.notify(f"Vous avez gagné {points} points !")
-                partie.tuile_actuelle = None
-                joueur= partie.joueurs[partie.index_joueur]
-                if joueur.score >= 15  :
-                    ui.notify(f"{partie.joueurs[partie.index_joueur].nom} a gagné !!!")
-                    afficher_joueur.refresh()
-                    afficher_plateau.refresh()
+                
+            joueur= partie.joueurs[partie.index_joueur]
+            if joueur.score >= 15:
+                    ui.navigate.to('/victoire')
                     return
-            partie.tuile_actuelle = None
-            partie.changer_joueur()
-            afficher_joueur.refresh()
-            afficher_plateau.refresh()
+                
+            demander_pion(x_placement, y_placement)
     else :
             ui.notify("Placement non valide.")
 
@@ -88,6 +121,14 @@ def afficher_joueur():
         nom_image = f"{partie.tuile_actuelle.nord}{partie.tuile_actuelle.est}{partie.tuile_actuelle.sud}{partie.tuile_actuelle.ouest}.png"
         ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px;")
 
+@ui.page('/victoire')
+def victoire():
+    joueur = partie.joueurs[partie.index_joueur]
+
+    ui.label("🏆 VICTOIRE !").style("font-size: 40px; font-weight: bold;")
+    ui.label(f"{joueur.nom} a gagné !").style("font-size: 30px;")
+    ui.label(f"Score : {joueur.score} points").style("font-size: 24px;")
+
 @ui.page('/jeu')
 def jeu():
     if partie is None:
@@ -98,6 +139,8 @@ def jeu():
     ui.separator()
     afficher_plateau()
     afficher_joueur()
+    global zone_pion
+    zone_pion = ui.column()
 
     def piocher():
         if partie.tuile_actuelle is None:

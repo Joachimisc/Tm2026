@@ -10,6 +10,8 @@ class Tuile :
         self.ouest = ouest
         self.numéro = numéro
         self.rotation = 0 
+        self.pion_route = None
+        self.pion_ville = None
 
     def __repr__(self):
         return f"Tuile({self.nord},{self.est},{self.sud},{self.ouest})"
@@ -70,7 +72,7 @@ class Plateau :
         return compteur 
 
     #fonction récurssive pour compter le nombres de tuiles route sur lesquelles on peut se déplacer à partir d'une tuile donnée
-    def compteur_route(self, x, y, direction_départ, visites=None, direction_arrivee = None):
+    def compteur_route(self, x, y, visites=None,):
         if visites is None:
             visites = set()
         if (x, y) in visites:
@@ -82,10 +84,7 @@ class Plateau :
         points = 1
         directions = {"nord": (0, 1, "sud"), "sud": (0, -1, "nord"), "est": (1, 0, "ouest"), "ouest": (-1, 0, "est")}
         for direction, (deplacement_x, deplacement_y, cote_oppose) in directions.items():
-            if direction_arrivee is None and direction != direction_départ:
-                continue
-            if direction_arrivee is not None and direction == direction_arrivee:
-                continue
+            
             if getattr(tuile, direction) != "R":
                 continue
             nouveau_x = x + deplacement_x
@@ -95,7 +94,7 @@ class Plateau :
                 continue
             if getattr(voisin, cote_oppose) != "R":
                 continue  
-            points += self.compteur_route(nouveau_x, nouveau_y, cote_oppose, visites, cote_oppose)
+            points += self.compteur_route(nouveau_x, nouveau_y, visites)
         return points
 
 
@@ -112,16 +111,14 @@ class Plateau :
             return False
 
         directions = {"nord": (0, 1, "sud"),"sud": (0, -1, "nord"),"est": (1, 0, "ouest"),"ouest": (-1, 0, "est")}
-        deplacement_x, deplacement_y, cote_oppose = directions[direction_départ]
 
-        
+
         #la boncle qui lance la fonction récurssive sur chaque chemins 
         for direction, (deplacement_x, deplacement_y, cote_oppose) in directions.items():
         
                 if getattr(tuile, direction) != "R":
                     continue
-                if self.fin_route(tuile) == 1 :
-                    continue
+
                 nouveau_x = x + deplacement_x
                 nouveau_y = y + deplacement_y
                 voisin = self.tuiles.get((nouveau_x, nouveau_y))
@@ -290,7 +287,7 @@ class Jeu :
                 continue
             visites_route = set()
             if self.plateau.route_fermee(x,y,direction,visites_route):
-                points = self.plateau.compteur_route(x,y,direction)
+                points = self.plateau.compteur_route(x,y)
                 points_total += points
         joueur.score += points_total
         return points_total

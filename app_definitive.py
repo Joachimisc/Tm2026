@@ -15,6 +15,8 @@ def accueil():
     def commencer():
         global partie
         joueurs = [classes.Joueur(nom1.value),classes.Joueur(nom2.value)]
+        joueurs[0].couleur = "red"
+        joueurs[1].couleur = "blue"
         plateau = classes.Plateau()
         jeu = classes.Jeu(joueurs, tuiles.pioche, plateau)
         partie = jeu
@@ -104,7 +106,18 @@ def afficher_plateau():
 
                 if tuile :
                     nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
-                    ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px; padding:0px;")
+                    with ui.element("div").style("position: relative; width: 100px; height: 100px;"):
+                        ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px; padding:0px;")
+                        if tuile.pion_route:
+                            ui.label("●").style(
+                                f"position: absolute; top: 35px; left: 45px; "
+                                f"font-size: 30px; color: {tuile.pion_route.couleur};"
+                            )
+                        if tuile.pion_ville:
+                            ui.label("●").style(
+                                f"position: absolute; top: 10px; left: 45px; "
+                                f"font-size: 30px; color: {tuile.pion_ville.couleur};"
+                            )
                 else :
                     ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style("width: 100px; height: 100px; border: 1px solid black; box-sizing : border-box;") 
                 

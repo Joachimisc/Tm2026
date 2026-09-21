@@ -12,6 +12,7 @@ class Tuile :
         self.rotation = 0 
         self.pion_route = None
         self.pion_ville = None
+        self.couleur = None 
 
     def __repr__(self):
         return f"Tuile({self.nord},{self.est},{self.sud},{self.ouest})"
@@ -287,8 +288,9 @@ class Jeu :
                 continue
             visites_route = set()
             if self.plateau.route_fermee(x,y,direction,visites_route):
-                points = self.plateau.compteur_route(x,y)
-                points_total += points
+                points_total = self.plateau.compteur_route(x,y)
+                break 
+
         joueur.score += points_total
         return points_total
 

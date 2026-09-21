@@ -27,10 +27,12 @@ def accueil():
     ui.button("Commencer", on_click=commencer)
 
 def poser_pion_route(tuile, joueur):
+    joueur.pions -= 1
     tuile.pion_route = joueur
     continuer_tour()
 
 def poser_pion_ville(tuile, joueur):
+    joueur.pions -= 1
     tuile.pion_ville = joueur
     continuer_tour()
 
@@ -54,12 +56,29 @@ def continuer_tour() :
     afficher_plateau.refresh()
 
 def demander_pion(x,y) :
+    joueur = partie.joueurs[partie.index_joueur]
+    if joueur.pions == 0:
+        continuer_tour()
+        return
     zone_pion.clear()
     with zone_pion :
         ui.notify("Tuile placée ! Voulez-vous placer un pion ?")
         with ui.row() :
             ui.button("Oui", on_click=lambda : placer_pion(x,y))
             ui.button("Non", on_click=lambda : continuer_tour())
+
+def position_pion(tuile, type_zone):
+    positions = {"nord": (50, 15),"est": (85, 50),"sud": (50, 85),"ouest": (15, 50)}
+    points = []
+    for direction, position in positions.items():
+        if getattr(tuile, direction) == type_zone:
+            points.append(position)
+    if not points:
+        return 50, 50
+    x = sum(p[0] for p in points) / len(points)
+    y = sum(p[1] for p in points) / len(points)
+
+    return x, y
 
 def placer_tuile(x,y): 
     if partie.tuile_actuelle is None :
@@ -95,9 +114,9 @@ def placer_tuile(x,y):
 def afficher_plateau():
     ui.label("Plateau :")
 
-    with ui.grid(columns=13).style("gap: 0px;") :
-        for y in range(6, -7, -1) :
-            for x in range(-6, 7) :
+    with ui.grid(columns=17).style("gap: 0px;") :
+        for y in range(8, -9, -1) :
+            for x in range(-8, 9) :
 
                 tuile = partie.plateau.tuiles.get((x,y))
 
@@ -109,13 +128,17 @@ def afficher_plateau():
                     with ui.element("div").style("position: relative; width: 100px; height: 100px;"):
                         ui.image(f"/images/{nom_image}").style("width: 100px; height: 100px; padding:0px;")
                         if tuile.pion_route:
+                            x_pion, y_pion = position_pion(tuile, "R")
                             ui.label("●").style(
-                                f"position: absolute; top: 35px; left: 45px; "
+                                f"position: absolute; left: {x_pion}%; top: {y_pion}%; "
+                                f"transform: translate(-50%, -50%); "
                                 f"font-size: 30px; color: {tuile.pion_route.couleur};"
                             )
                         if tuile.pion_ville:
+                            x_pion,y_pion = position_pion(tuile, "V")
                             ui.label("●").style(
-                                f"position: absolute; top: 10px; left: 45px; "
+                                f"position: absolute; left: {x_pion}%; top: {y_pion}%; "
+                                f"transform: translate(-50%, -50%); "
                                 f"font-size: 30px; color: {tuile.pion_ville.couleur};"
                             )
                 else :

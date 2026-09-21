@@ -12,7 +12,7 @@ class Tuile :
         self.rotation = 0 
         self.pion_route = None
         self.pion_ville = None
-        self.couleur = None 
+
 
     def __repr__(self):
         return f"Tuile({self.nord},{self.est},{self.sud},{self.ouest})"
@@ -25,6 +25,8 @@ class Joueur :
     def __init__(self, nom):
         self.nom = nom
         self.score = 0
+        self.couleur = None 
+        self.pions = 10
     def __repr__(self):
         return f"Joueur({self.nom}, score={self.score})"
 
@@ -289,9 +291,24 @@ class Jeu :
             visites_route = set()
             if self.plateau.route_fermee(x,y,direction,visites_route):
                 points_total = self.plateau.compteur_route(x,y)
-                break 
+                pions_joueurs = {}
+                for position in visites_route:
+                    tuile_route = self.plateau.tuiles[position[:2]]
 
-        joueur.score += points_total
+                    if tuile_route.pion_route:
+                        joueur_pion = tuile_route.pion_route
+                        if joueur_pion not in pions_joueurs:
+                            pions_joueurs[joueur_pion] = 0
+                        pions_joueurs[joueur_pion] += 1
+                        if pions_joueurs:
+                            maximum = max(pions_joueurs.values())
+                            gagnants = [
+                                joueur for joueur, nombre in pions_joueurs.items()
+                                if nombre == maximum
+                            ]
+                        for gagnant in gagnants:
+                            gagnant.score += points_total
+                break
         return points_total
 
     def changer_joueur(self):

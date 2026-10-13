@@ -96,8 +96,7 @@ def placer_tuile(x,y):
             points = partie.calculer_score(x_placement, y_placement)
             points_ville = 0
             if partie.plateau.extremite_ville(partie.plateau.tuiles[(x_placement, y_placement)]) > 0:
-                if partie.plateau.vérifier_ville_fermee(x_placement, y_placement):
-                    visites = set()
+                    visites = []
                     partie.plateau.compteur_ville(x_placement, y_placement, visites)
                     tuiles_ville = [partie.plateau.tuiles[pos]for pos in visites]
                     cle = ("ville", frozenset(visites))

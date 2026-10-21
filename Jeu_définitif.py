@@ -7,10 +7,10 @@ app.add_static_files('/images', 'images')
 ui.add_head_html("""
 <style>
 body {
-    background-image: url('/images/fond.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    background : #24452F !important
+}
+body {
+    font-weight: bold !important;
 }
 </style>
 """, shared=True)
@@ -140,7 +140,7 @@ def placer_tuile(x,y):
             if points > 0 :
                 ui.notify(f"Route terminée : {points} points")
             joueur= partie.joueurs[partie.index_joueur]
-            if partie.joueurs[0].score >= 100 or partie.joueurs[1].score >= 100 or len(partie.pioche) == 0:
+            if partie.joueurs[0].score >= 50 or partie.joueurs[1].score >= 50 or len(partie.pioche) == 0:
                 ui.navigate.to('/victoire')
                 return
                 
@@ -180,7 +180,7 @@ def afficher_plateau():
                                 f"font-size: 30px; color: {tuile.pion_ville.couleur};"
                             )
                 else :
-                    ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style(f"""width: {taille}px;height: {taille}px;border: none; color : none !important;box-sizing: border-box;background: transparent !important;box-shadow: none !important;""")
+                    ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style(f"""width: {taille}px;height: {taille}px;border: none; color : #24452F !important;box-sizing: border-box;background: transparent !important;box-shadow: none !important;""")
                 
 
 @ui.refreshable

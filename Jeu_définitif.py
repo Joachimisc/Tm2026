@@ -4,6 +4,17 @@ import tuiles
 
 app.add_static_files('/images', 'images')
 
+ui.add_head_html("""
+<style>
+body {
+    background-image: url('/images/fond.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+</style>
+""", shared=True)
+
 partie = None
 zone_pion = None
 
@@ -59,17 +70,17 @@ def continuer_tour() :
     afficher_joueur.refresh()
     afficher_plateau.refresh()
 
-def demander_pion(x,y) :
+def demander_pion(x, y):
     joueur = partie.joueurs[partie.index_joueur]
-    if joueur.pions == 0:
+    if joueur.pions <= 0:
         continuer_tour()
         return
     zone_pion.clear()
-    with zone_pion :
-        ui.notify("Tuile placée ! Voulez-vous placer un pion ?")
-        with ui.row() :
-            ui.button("Oui", on_click=lambda : placer_pion(x,y))
-            ui.button("Non", on_click=lambda : continuer_tour())
+    with zone_pion:
+        ui.label("Tuile placée ! Voulez-vous placer un pion ?")
+        with ui.row():
+            ui.button("Oui", on_click=lambda: placer_pion(x, y))
+            ui.button("Non", on_click=continuer_tour)
 
 def position_pion(tuile, type_zone):
     positions = {"nord": (50, 15),"est": (85, 50),"sud": (50, 85),"ouest": (15, 50)}
@@ -94,41 +105,44 @@ def placer_tuile(x,y):
     if partie.plateau.placement(partie.tuile_actuelle, x_placement, y_placement):
             afficher_plateau.refresh()
             points = partie.calculer_score(x_placement, y_placement)
+            afficher_plateau.refresh()
+            afficher_joueur.refresh()
             points_ville = 0
             if partie.plateau.extremite_ville(partie.plateau.tuiles[(x_placement, y_placement)]) > 0:
-                    visites = []
-                    partie.plateau.compteur_ville(x_placement, y_placement, visites)
-                    tuiles_ville = [partie.plateau.tuiles[pos]for pos in visites]
-                    cle = ("ville", frozenset(visites))
-                    if cle not in partie.elements_scores:
-                        points_ville = len(tuiles_ville) * 2
-                        nombres = {}
-                        for tuile_ville in tuiles_ville:
-                            pion = tuile_ville.pion_ville
-                            if pion is not None:
-                                nombres[pion] = nombres.get(pion, 0) + 1
-                        if nombres:
-                            maximum = max(nombres.values())
-                            gagnants = [joueur for joueur, nombre in nombres.items()if nombre == maximum]
-                            for joueur in gagnants:
-                                joueur.score += points_ville
-                            noms = ", ".join(joueur.nom for joueur in gagnants)
-                            ui.notify(f"Ville terminée : {points_ville} points pour {noms} !")
-                        else:
-                            ui.notify("Ville terminée sans pion.")
-                        for tuile_ville in tuiles_ville:
-                            if tuile_ville.pion_ville is not None:
-                                tuile_ville.pion_ville.pions += 1
-                                tuile_ville.pion_ville = None
-                        partie.elements_scores.add(cle)
-                        afficher_plateau.refresh()
-                        afficher_joueur.refresh()
+                    if partie.plateau.vérifier_ville_fermee(x_placement,y_placement):
+                        visites = []
+                        partie.plateau.compteur_ville(x_placement, y_placement, visites)
+                        tuiles_ville = [partie.plateau.tuiles[pos]for pos in visites]
+                        cle = ("ville", frozenset(visites))
+                        if cle not in partie.elements_score:
+                            points_ville = len(tuiles_ville) * 2
+                            nombres = {}
+                            for tuile_ville in tuiles_ville:
+                                pion = tuile_ville.pion_ville
+                                if pion is not None:
+                                    nombres[pion] = nombres.get(pion, 0) + 1
+                            if nombres:
+                                maximum = max(nombres.values())
+                                gagnants = [joueur for joueur, nombre in nombres.items()if nombre == maximum]
+                                for joueur in gagnants:
+                                    joueur.score += points_ville
+                                nom_gagnant_points = ", ".join(joueur.nom for joueur in gagnants)
+                                ui.notify(f"Ville terminée : {points_ville} points pour {nom_gagnant_points} !")
+                            else:
+                                ui.notify("Ville terminée sans pion.")
+                            for tuile_ville in tuiles_ville:
+                                if tuile_ville.pion_ville is not None:
+                                    tuile_ville.pion_ville.pions += 1
+                                    tuile_ville.pion_ville = None
+                            partie.elements_score.add(cle)
+                            afficher_plateau.refresh()
+                            afficher_joueur.refresh()
             if points > 0 :
-                ui.notify(f"Vous avez gagné {points} points !")
+                ui.notify(f"Route terminée : {points} points")
             joueur= partie.joueurs[partie.index_joueur]
-            if joueur.score >= 15:
-                    ui.navigate.to('/victoire')
-                    return
+            if partie.joueurs[0].score >= 100 or partie.joueurs[1].score >= 100 or len(partie.pioche) == 0:
+                ui.navigate.to('/victoire')
+                return
                 
             demander_pion(x_placement, y_placement)
     else :
@@ -138,7 +152,7 @@ def placer_tuile(x,y):
 def afficher_plateau():
     ui.label("Plateau :")
     taille = 75
-    with ui.grid(columns=17).style(f"grid-template-columns: repeat(17, {taille}px); gap: 0px;"):
+    with ui.grid(columns=17).style(f"grid-template-columns: repeat(17, {taille}px); gap: 0px; background : transparent;"):
         for y in range(8, -9, -1) :
             for x in range(-8, 9) :
 
@@ -166,15 +180,15 @@ def afficher_plateau():
                                 f"font-size: 30px; color: {tuile.pion_ville.couleur};"
                             )
                 else :
-                    ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style(f"width: {taille}px; height: {taille}px; border: 1px solid black; box-sizing : border-box;") 
+                    ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style(f"""width: {taille}px;height: {taille}px;border: none; color : none !important;box-sizing: border-box;background: transparent !important;box-shadow: none !important;""")
                 
 
 @ui.refreshable
 def afficher_joueur():
     joueur = partie.joueurs[partie.index_joueur]
     ui.label(f"Tour de {joueur.nom}")
-    ui.label(f"Score de {partie.joueurs[0].nom}: {partie.joueurs[0].score}")
-    ui.label(f"Score de {partie.joueurs[1].nom}: {partie.joueurs[1].score}")
+    ui.label(f"Score de {partie.joueurs[0].nom}(rouge): {partie.joueurs[0].score},  Pions réstants : {partie.joueurs[0].pions}")
+    ui.label(f"Score de {partie.joueurs[1].nom}(bleu): {partie.joueurs[1].score},  Pions réstants : {partie.joueurs[1].pions}")
     ui.label(f"Tuiles réstantes :{len(partie.pioche)}")
     if partie.tuile_actuelle :
         ui.label(f"Votre tuile : {partie.tuile_actuelle}")
@@ -183,11 +197,22 @@ def afficher_joueur():
 
 @ui.page('/victoire')
 def victoire():
-    joueur = partie.joueurs[partie.index_joueur]
+    joueurs = partie.joueurs
+    meilleur_score = max(joueur.score for joueur in joueurs)
 
-    ui.label("🏆 VICTOIRE !").style("font-size: 40px; font-weight: bold;")
-    ui.label(f"{joueur.nom} a gagné !").style("font-size: 30px;")
-    ui.label(f"Score : {joueur.score} points").style("font-size: 24px;")
+    gagnants = [joueur for joueur in joueurs if joueur.score == meilleur_score]
+    ui.label(" Fin de la partie !").style("font-size: 40px; font-weight: bold;")
+    if len(gagnants) == 1:
+        gagnant = gagnants[0]
+        ui.label(f" {gagnant.nom} a gagné !").style("font-size: 30px;")
+        ui.label(f"Score : {gagnant.score} points").style("font-size: 24px;")
+    else:
+        noms = " et ".join(joueur.nom for joueur in gagnants)
+        ui.label(f" Égalité entre {noms} !").style("font-size: 30px;")
+        ui.label(f"Score : {meilleur_score} points").style("font-size: 24px;")
+    ui.separator()
+    for joueur in joueurs:
+        ui.label(f"{joueur.nom} : {joueur.score} points")
 
 @ui.page('/jeu')
 def jeu():

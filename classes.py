@@ -227,6 +227,7 @@ class Jeu :
         self.index_joueur = 0
         self.tuile_actuelle = None
         self.partie_terminée = False
+        self.elements_score = set()
 
     def __repr__(self):
         return f"Jeu(joueurs={self.joueurs}, pioche={self.pioche})"
@@ -272,45 +273,53 @@ class Jeu :
         return True
 # fonction pour calculer le score d'un joueur après avoir placé une tuile de route (pas ville encore). on regarde de ou on vient
 # et comment on peut continuer. On regarde dans quelles directions on peut aller (par exemple pour les carrefor)
-    def calculer_score(self, x, y):
-        joueur = self.joueurs[self.index_joueur]
-        tuile = self.plateau.tuiles[(x, y)]
-        points_total = 0
-        directions = {"nord": (0, 1, "sud"),"sud": (0, -1, "nord"),"est": (1, 0, "ouest"),"ouest": (-1, 0, "est")}
 
-        for direction, (deplacement_x, deplacement_y, cote_oppose) in directions.items():
+    def calculer_score(self, x, y):
+        tuile = self.plateau.tuiles[(x, y)]
+        directions = {
+            "nord": (0, 1, "sud"),
+            "sud": (0, -1, "nord"),
+            "est": (1, 0, "ouest"),
+            "ouest": (-1, 0, "est")
+        }
+        for direction, (dx, dy, cote_oppose) in directions.items():
             if getattr(tuile, direction) != "R":
                 continue
-            nouveau_x = x + deplacement_x
-            nouveau_y = y + deplacement_y
-            voisin = self.plateau.tuiles.get((nouveau_x, nouveau_y))
+            voisin = self.plateau.tuiles.get((x + dx, y + dy))
             if voisin is None:
                 continue
             if getattr(voisin, cote_oppose) != "R":
                 continue
             visites_route = set()
-            if self.plateau.route_fermee(x,y,direction,visites_route):
-                points_total = self.plateau.compteur_route(x,y)
+            if self.plateau.route_fermee(x, y, direction, visites_route):
+                visites_tuiles = set()
+                self.plateau.compteur_route(x, y, visites_tuiles)
+                positions_route = frozenset(visites_tuiles)
+                cle = ("route", positions_route)
+                if cle in self.elements_score:
+                    continue
+                points_total = len(positions_route)
                 pions_joueurs = {}
-                for position in visites_route:
-                    tuile_route = self.plateau.tuiles[position[:2]]
+                for position in positions_route:
+                    tuile_route = self.plateau.tuiles[position]
+                    pion = tuile_route.pion_route
+                    if pion is not None:
+                        pions_joueurs[pion] = (pions_joueurs.get(pion, 0) + 1)
+                if pions_joueurs:
+                    maximum = max(pions_joueurs.values())
+                    gagnants = [joueur for joueur, nombre in pions_joueurs.items()if nombre == maximum]
+                    for gagnant in gagnants:
+                        gagnant.score += points_total
+                for position in positions_route:
+                    tuile_route = self.plateau.tuiles[position]
+                    if tuile_route.pion_route is not None:
+                        tuile_route.pion_route.pions += 1
+                        tuile_route.pion_route = None
+                self.elements_score.add(cle)
 
-                    if tuile_route.pion_route:
-                        joueur_pion = tuile_route.pion_route
-                        if joueur_pion not in pions_joueurs:
-                            pions_joueurs[joueur_pion] = 0
-                        pions_joueurs[joueur_pion] += 1
-                        if pions_joueurs:
-                            maximum = max(pions_joueurs.values())
-                            gagnants = [
-                                joueur for joueur, nombre in pions_joueurs.items()
-                                if nombre == maximum
-                            ]
-                        for gagnant in gagnants:
-                            gagnant.score += points_total
-                break
-        return points_total
+                return points_total if pions_joueurs else 0
 
+        return 0
     def changer_joueur(self):
         self.index_joueur = (self.index_joueur + 1)% len(self.joueurs)
 

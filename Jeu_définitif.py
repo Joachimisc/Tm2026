@@ -3,7 +3,7 @@ import classes
 import tuiles
 
 app.add_static_files('/images', 'images')
-
+#le bloc suivant m'a été fourni par l'IA pour le fond du jeu et rendre plus visible l'écriture
 ui.add_head_html("""
 <style>
 body {
@@ -17,7 +17,7 @@ body {
 
 partie = None
 zone_pion = None
-
+#définition de la page d'acceuil avec le choix des joueurs 
 @ui.page('/')
 def accueil():
     nom1 = ui.input("Joueur 1")
@@ -36,20 +36,21 @@ def accueil():
         ui.navigate.to('/jeu')
 
     ui.button("Commencer", on_click=commencer)
-
+# permet de placer le pion et de le retirer de la pile de 10
 def poser_pion_route(tuile, joueur):
     joueur.pions -= 1
     tuile.pion_route = joueur
     zone_pion.clear()
     continuer_tour()
-
+#comme celle du dessus mais pour les pions placés sur les villes
+#je fais la distinction car pour le calcul des points je dois différencier si un pion appartient à une ville ou une route
 def poser_pion_ville(tuile, joueur):
     joueur.pions -= 1
     tuile.pion_ville = joueur
     #.clear pour faire disparraitre le bouton apres le placement
     zone_pion.clear()
     continuer_tour()
-
+#fonction qui intéragis avec l'utilisateur pour effectivement placer le pion
 def placer_pion(x,y) :
     tuile = partie.plateau.tuiles[(x, y)]
     joueur = partie.joueurs[partie.index_joueur]
@@ -59,17 +60,18 @@ def placer_pion(x,y) :
         ui.label("Sur quelle partie voulez-vous poser votre pion ?")
         with ui.row():
             if "R" in [tuile.nord, tuile.est, tuile.sud, tuile.ouest]:
+#lambda : ca sert à attendre de cliquer avant de faire la fonction et à transmettre des arguments de fonctions. c'est comme créer une petite fonction
                 ui.button("Route", on_click=lambda: poser_pion_route(tuile, joueur))
             if "V" in [tuile.nord, tuile.est, tuile.sud, tuile.ouest]:
                 ui.button("Ville", on_click=lambda: poser_pion_ville(tuile, joueur))
-
+#cette fonction est assez basique mias primordiale car elle me pèermet de continuer le tour apres le placement de quoique ce soit
 def continuer_tour() :
     partie.tuile_actuelle = None
     zone_pion.clear()
     partie.changer_joueur()
     afficher_joueur.refresh()
     afficher_plateau.refresh()
-
+#fonction d'interaction
 def demander_pion(x, y):
     joueur = partie.joueurs[partie.index_joueur]
     if joueur.pions <= 0:
@@ -104,6 +106,7 @@ def placer_tuile(x,y):
 
     if partie.plateau.placement(partie.tuile_actuelle, x_placement, y_placement):
             afficher_plateau.refresh()
+            #points va valloir plus que 0 si c'est une route ou 0 si c'est une ville alors le calculs ce fait ici
             points = partie.calculer_score(x_placement, y_placement)
             afficher_plateau.refresh()
             afficher_joueur.refresh()
@@ -113,15 +116,19 @@ def placer_tuile(x,y):
                         visites = []
                         partie.plateau.compteur_ville(x_placement, y_placement, visites)
                         tuiles_ville = [partie.plateau.tuiles[pos]for pos in visites]
+                        #ca fait que l'on ne peut plus le modifier a^rès sa création. ca fait une clé stable qui est à l'effigie de la ville
+                        #je peux donc identifier les villes déjà visitées indépendament de l'ordre dans lequel je parcours les tuiles
                         cle = ("ville", frozenset(visites))
                         if cle not in partie.elements_score:
                             points_ville = len(tuiles_ville) * 2
+                            #nombre compte le nombre... de pions qu'un joueur a dans une ville
                             nombres = {}
                             for tuile_ville in tuiles_ville:
                                 pion = tuile_ville.pion_ville
                                 if pion is not None:
                                     nombres[pion] = nombres.get(pion, 0) + 1
                             if nombres:
+                                #max pour savoir qui a le plus de pions
                                 maximum = max(nombres.values())
                                 gagnants = [joueur for joueur, nombre in nombres.items()if nombre == maximum]
                                 for joueur in gagnants:
@@ -158,9 +165,6 @@ def afficher_plateau():
 
                 tuile = partie.plateau.tuiles.get((x,y))
 
-                #with ui.card().style("width: 100px; height: 100px; border: 1px solid black; box-sizing : border-box;") :
-                    #ui.label(f"{x},{y}")
-
                 if tuile :
                     nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
                     with ui.element("div").style(f"position: relative; width: {taille}px; height: {taille}px;"):
@@ -187,8 +191,8 @@ def afficher_plateau():
 def afficher_joueur():
     joueur = partie.joueurs[partie.index_joueur]
     ui.label(f"Tour de {joueur.nom}")
-    ui.label(f"Score de {partie.joueurs[0].nom}(rouge): {partie.joueurs[0].score},  Pions réstants : {partie.joueurs[0].pions}")
-    ui.label(f"Score de {partie.joueurs[1].nom}(bleu): {partie.joueurs[1].score},  Pions réstants : {partie.joueurs[1].pions}")
+    ui.label(f"Score de {partie.joueurs[0].nom}: {partie.joueurs[0].score},  Pions réstants : {partie.joueurs[0].pions}(rouge)")
+    ui.label(f"Score de {partie.joueurs[1].nom}: {partie.joueurs[1].score},  Pions réstants : {partie.joueurs[1].pions}(bleu)")
     ui.label(f"Tuiles réstantes :{len(partie.pioche)}")
     if partie.tuile_actuelle :
         ui.label(f"Votre tuile : {partie.tuile_actuelle}")
@@ -216,30 +220,35 @@ def victoire():
 
 @ui.page('/jeu')
 def jeu():
+    global zone_pion
     if partie is None:
         ui.label("Aucune partie en cours.")
         return
     ui.label("La partie a commencé !")
-    #ui.image("/images/PPPP.png").style("width: 100px; height: 100px;")
-    ui.separator()
-    afficher_plateau()
-    afficher_joueur()
-    global zone_pion
-    zone_pion = ui.column()
+    with ui.row().style("align_items: flex-start ; gap: 30px;") :
+        with ui.column():
+            afficher_plateau()
+        with ui.column().style("min-width: 250px"):
+            afficher_joueur()
 
-    def piocher():
-        if partie.tuile_actuelle is None:
-            partie.piocher_tuile()
-            afficher_joueur.refresh()
-        else :
-            ui.notify("Piochez d'abord une tuile.")
-    ui.button("Piocher une tuile", on_click=piocher)
+            zone_pion = ui.column()
+            def piocher():
+                if partie.tuile_actuelle is None:
+                        partie.piocher_tuile()
+                        afficher_joueur.refresh()
+                else :
+                        ui.notify("Piochez d'abord une tuile.")
+            ui.button("Piocher une tuile", on_click=piocher)
 
-    def tourner_tuile():
-        if partie.tuile_actuelle :
-            partie.tuile_actuelle.tourner()
-            afficher_joueur.refresh()
-    ui.button("Tourner la tuile de 90° vers la droite", on_click=tourner_tuile)
+            def tourner_tuile():
+                    if partie.tuile_actuelle :
+                        partie.tuile_actuelle.tourner()
+                        afficher_joueur.refresh()
+            ui.button("Tourner la tuile de 90° vers la droite", on_click=tourner_tuile)
+
+    
+
+    
 
         
 ui.run()

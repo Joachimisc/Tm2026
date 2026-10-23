@@ -29,7 +29,7 @@ class Joueur :
         self.pions = 10
     def __repr__(self):
         return f"Joueur({self.nom}, score={self.score})"
-
+# au final cette classe sert surtout à gérer les points des routes surtout mais aussi villes
 class Plateau :
 
     def __init__(self):
@@ -138,7 +138,6 @@ class Plateau :
                     return False
         return True
 
-    #pas encore utile(le comptage des villes ne marche pas encore)
     def extremite_ville(self, tuile):
         compteur = 0
         if tuile.nord == "V":
@@ -151,8 +150,7 @@ class Plateau :
             compteur += 1
 
         return compteur
-
-    #pareil
+    
     def compteur_ville(self, x, y, visites=None):
         if visites is None:
             visites = []
@@ -180,7 +178,6 @@ class Plateau :
                 points += self.compteur_ville(x - 1, y, visites)
         return points
 
-    #pareil 
     def vérifier_ville_fermee(self, x, y, visites=None):
         if visites is None:
             visites = []
@@ -218,6 +215,7 @@ class Plateau :
 
         return True
 
+
 class Jeu :
 
     def __init__(self, joueurs, pioche, plateau):
@@ -240,40 +238,10 @@ class Jeu :
         else:
             return None
 
-    def nb_de_joueurs(self):
-        return len(self.joueurs)
-    
-    def jouer_tour(self, plateau):
-        if not self.pioche:
-            return False
-        joueur = self.joueurs[self.index_joueur]
-        affichage.afficher_tour(joueur)
-        affichage.afficher_plateau(plateau)
-        tuile_joueur = self.pioche.pop()
-        affichage.afficher_tuile(tuile_joueur)
-        rotation = affichage.demander_rotation()
-
-        for i in range(rotation):
-            tuile_joueur.tourner()
-
-        while True:
-            x, y = affichage.demander_coordonnees()
-            if plateau.placement(tuile_joueur, x, y):
-                affichage.afficher_tuile_placee()
-                points = self.calculer_score(x, y)
-                if plateau.vérifier_ville_fermee(x, y):
-                    points = plateau.compteur_ville(x, y)
-                    joueur.score += points * 2
-                    affichage.afficher_points(joueur, points * 2)
-                break
-            else:
-                affichage.afficher_placement_invalide()
-        self.changer_joueur()
-
-        return True
 # fonction pour calculer le score d'un joueur après avoir placé une tuile de route (pas ville encore). on regarde de ou on vient
 # et comment on peut continuer. On regarde dans quelles directions on peut aller (par exemple pour les carrefor)
 
+#finalement le calcul du score des villes se fait dans jeu_définitif au placement de la tuile
     def calculer_score(self, x, y):
         tuile = self.plateau.tuiles[(x, y)]
         directions = {
@@ -294,6 +262,7 @@ class Jeu :
             if self.plateau.route_fermee(x, y, direction, visites_route):
                 visites_tuiles = set()
                 self.plateau.compteur_route(x, y, visites_tuiles)
+                #expliqué dans jeu_définitif
                 positions_route = frozenset(visites_tuiles)
                 cle = ("route", positions_route)
                 if cle in self.elements_score:
@@ -323,20 +292,6 @@ class Jeu :
     def changer_joueur(self):
         self.index_joueur = (self.index_joueur + 1)% len(self.joueurs)
 
-    def jouer(self, plateau):
-        random.shuffle(self.pioche)
-        plateau.tuiles[(0, 0)] = self.pioche.pop(0)
-
-        while self.pioche:
-            continuer = self.jouer_tour(plateau)
-            if not continuer:
-                break
-    # a completer et afficher une page quand le jeu est terminé
-    def vérifier_victoire(self): 
-        if self.joueurs[self.index_joueur].score >= 15:
-            self.partie_terminée = True
-            return True
-        return False
         
 
     #affichage.afficher_fin()

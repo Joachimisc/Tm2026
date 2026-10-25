@@ -1,7 +1,7 @@
 from nicegui import ui, app
 import classes
 import tuiles
-
+# chemin d'accés a mes images de mon dossier images pour l'interface web
 app.add_static_files('/images', 'images')
 #le bloc suivant m'a été fourni par l'IA pour le fond du jeu et rendre plus visible l'écriture
 ui.add_head_html("""
@@ -130,6 +130,7 @@ def placer_tuile(x,y):
                             if nombres:
                                 #max pour savoir qui a le plus de pions
                                 maximum = max(nombres.values())
+                                #.items sert a parcourir les cle et les valeurs d'un dictionnaire d'un seul coup
                                 gagnants = [joueur for joueur, nombre in nombres.items()if nombre == maximum]
                                 for joueur in gagnants:
                                     joueur.score += points_ville
@@ -159,6 +160,7 @@ def placer_tuile(x,y):
 def afficher_plateau():
     ui.label("Plateau :")
     taille = 75
+    #crée une grille de 17x17 avec des cases que l'on transforme en bouton pour placer les tuiles
     with ui.grid(columns=17).style(f"grid-template-columns: repeat(17, {taille}px); gap: 0px; background : transparent;"):
         for y in range(8, -9, -1) :
             for x in range(-8, 9) :
@@ -167,6 +169,7 @@ def afficher_plateau():
 
                 if tuile :
                     nom_image = f"{tuile.nord}{tuile.est}{tuile.sud}{tuile.ouest}.png"
+                    #ui.element pour superposé les pions aux tuiles 
                     with ui.element("div").style(f"position: relative; width: {taille}px; height: {taille}px;"):
                         ui.image(f"/images/{nom_image}").style(f"width: {taille}px; height: {taille}px; padding:0px;")
                         if tuile.pion_route:
@@ -186,7 +189,7 @@ def afficher_plateau():
                 else :
                     ui.button(f"{x},{y}", on_click=lambda x=x, y=y : placer_tuile(x,y)).style(f"""width: {taille}px;height: {taille}px;border: none; color : #24452F !important;box-sizing: border-box;background: transparent !important;box-shadow: none !important;""")
                 
-
+#permet de rafraichir la page grace a la fonction .refresh(). tres utile pour afficher au fur et a mesure les infos
 @ui.refreshable
 def afficher_joueur():
     joueur = partie.joueurs[partie.index_joueur]
@@ -203,7 +206,8 @@ def afficher_joueur():
 def victoire():
     joueurs = partie.joueurs
     meilleur_score = max(joueur.score for joueur in joueurs)
-
+    #ce genre de ligne s'appelle compréhension de liste. ici, si le score du joueur est le plus plus grand (max définit en haut) on ajoute le joueur à la variable gagnant.
+    #pratique pour avoir des égalités
     gagnants = [joueur for joueur in joueurs if joueur.score == meilleur_score]
     ui.label(" Fin de la partie !").style("font-size: 40px; font-weight: bold;")
     if len(gagnants) == 1:
@@ -211,6 +215,7 @@ def victoire():
         ui.label(f" {gagnant.nom} a gagné !").style("font-size: 30px;")
         ui.label(f"Score : {gagnant.score} points").style("font-size: 24px;")
     else:
+        #.join sert à rassembler plusieurs chaînes de caractères en une seule, en plaçant un séparateur entre chacune d'elles
         noms = " et ".join(joueur.nom for joueur in gagnants)
         ui.label(f" Égalité entre {noms} !").style("font-size: 30px;")
         ui.label(f"Score : {meilleur_score} points").style("font-size: 24px;")
@@ -225,7 +230,9 @@ def jeu():
         ui.label("Aucune partie en cours.")
         return
     ui.label("La partie a commencé !")
+    #ui.row permet de placer plusieurs éléments sur une mêm ligne
     with ui.row().style("align_items: flex-start ; gap: 30px;") :
+        #ui.row permet de placer plusieurs éléments sur une même colonne
         with ui.column():
             afficher_plateau()
         with ui.column().style("min-width: 250px"):
@@ -245,10 +252,5 @@ def jeu():
                         partie.tuile_actuelle.tourner()
                         afficher_joueur.refresh()
             ui.button("Tourner la tuile de 90° vers la droite", on_click=tourner_tuile)
-
-    
-
-    
-
-        
+#lance le jeu en créant un site avec une adresse       
 ui.run()

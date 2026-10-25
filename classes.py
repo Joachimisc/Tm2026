@@ -29,7 +29,7 @@ class Joueur :
         self.pions = 10
     def __repr__(self):
         return f"Joueur({self.nom}, score={self.score})"
-# au final cette classe sert surtout à gérer les points des routes surtout mais aussi villes
+# au final cette classe sert surtout à gérer les points des routes surtout mais aussi des villes avec quelques fonctions
 class Plateau :
 
     def __init__(self):
@@ -37,7 +37,7 @@ class Plateau :
 
     def trouver_voisins(self, x, y):
         return {"nord": self.tuiles.get((x, y + 1)), "sud": self.tuiles.get((x, y - 1)), "est": self.tuiles.get((x + 1, y)), "ouest": self.tuiles.get((x - 1, y))}
-
+# vérifie le placement des tuiles en comparant les coté de la nouvelle avec celles qui l'entoure 
     def validation(self, tuile, x, y):
         voisins = self.trouver_voisins(x, y)
 
@@ -61,7 +61,7 @@ class Plateau :
             self.tuiles[(x, y)] = tuile
             return True
         return False
-
+# sert a compter le nombres de cotés d'une tuile appartenant a une route
     def fin_route(self, tuile):
         compteur = 0
         if tuile.nord == "R" :
@@ -137,7 +137,7 @@ class Plateau :
                 else:
                     return False
         return True
-
+# sert a compter le nombres de cotés d'une tuile appartenant a une ville
     def extremite_ville(self, tuile):
         compteur = 0
         if tuile.nord == "V":
@@ -150,7 +150,7 @@ class Plateau :
             compteur += 1
 
         return compteur
-    
+    # fonction récursive qui sert à compter le nombres de tuiles composant une ville fermée
     def compteur_ville(self, x, y, visites=None):
         if visites is None:
             visites = []
@@ -177,7 +177,7 @@ class Plateau :
             if voisin and voisin.est == "V":
                 points += self.compteur_ville(x - 1, y, visites)
         return points
-
+    # fonction récursive permettant de vérifier si une ville est fermée en gardant les tuiles par lesquelles on est passé
     def vérifier_ville_fermee(self, x, y, visites=None):
         if visites is None:
             visites = []
@@ -244,6 +244,7 @@ class Jeu :
 #finalement le calcul du score des villes se fait dans jeu_définitif au placement de la tuile
     def calculer_score(self, x, y):
         tuile = self.plateau.tuiles[(x, y)]
+        #associe chaque direction au déplacement pour aller sur la tuile voisine
         directions = {
             "nord": (0, 1, "sud"),
             "sud": (0, -1, "nord"),
@@ -258,7 +259,9 @@ class Jeu :
                 continue
             if getattr(voisin, cote_oppose) != "R":
                 continue
+            #sert a ne ps visité deux fois une même tuile
             visites_route = set()
+            #ici on vérifie si la route est fermée
             if self.plateau.route_fermee(x, y, direction, visites_route):
                 visites_tuiles = set()
                 self.plateau.compteur_route(x, y, visites_tuiles)
@@ -268,6 +271,7 @@ class Jeu :
                 if cle in self.elements_score:
                     continue
                 points_total = len(positions_route)
+                # la on compte le nombre de pions de chaque joueur présents sur la route
                 pions_joueurs = {}
                 for position in positions_route:
                     tuile_route = self.plateau.tuiles[position]
@@ -284,15 +288,11 @@ class Jeu :
                     if tuile_route.pion_route is not None:
                         tuile_route.pion_route.pions += 1
                         tuile_route.pion_route = None
+                # permet d'enregistrer la route pour ne pas la compter une seconde fois
                 self.elements_score.add(cle)
-
+                #donne les points si un pion était présent
                 return points_total if pions_joueurs else 0
 
         return 0
     def changer_joueur(self):
         self.index_joueur = (self.index_joueur + 1)% len(self.joueurs)
-
-        
-
-    #affichage.afficher_fin()
-    #affichage.afficher_classement(self.joueurs)
